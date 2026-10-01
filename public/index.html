@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>FlowSuite - Project Management SaaS</title>
+<link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+
+<!-- AUTH VIEW -->
+<div id="view-auth" class="auth-wrapper">
+  <div class="auth-box">
+    <div class="logo">📋 FlowSuite</div>
+
+    <div id="auth-tabs" class="auth-tabs">
+      <span class="auth-tab active" data-tab="login" data-testid="auth-tab-login">Login</span>
+      <span class="auth-tab" data-tab="signup" data-testid="auth-tab-signup">Sign Up</span>
+    </div>
+
+    <div id="form-login" class="auth-form">
+      <label>Email</label>
+      <input type="text" id="login-email" data-testid="login-email" placeholder="owner@acme.test" />
+      <label>Password</label>
+      <input type="password" id="login-password" data-testid="login-password" placeholder="password123" />
+      <button class="btn-primary" id="btn-login" data-testid="btn-login">Login</button>
+      <p class="hint">Demo accounts: owner@acme.test / password123 &nbsp;|&nbsp; owner@globex.test / password123</p>
+      <p class="error-text" id="login-error" data-testid="login-error"></p>
+    </div>
+
+    <div id="form-signup" class="auth-form" style="display:none;">
+      <label>Full Name</label>
+      <input type="text" id="signup-name" data-testid="signup-name" />
+      <label>Work Email</label>
+      <input type="text" id="signup-email" data-testid="signup-email" />
+      <label>Password</label>
+      <input type="password" id="signup-password" data-testid="signup-password" />
+      <label>Organization Name</label>
+      <input type="text" id="signup-orgname" data-testid="signup-orgname" placeholder="e.g. My Startup Inc" />
+      <button class="btn-primary" id="btn-signup" data-testid="btn-signup">Create Account &amp; Organization</button>
+      <p class="error-text" id="signup-error" data-testid="signup-error"></p>
+    </div>
+  </div>
+</div>
+
+<!-- APP VIEW -->
+<div id="view-app" class="app-wrapper" style="display:none;">
+
+  <aside class="sidebar">
+    <div class="logo">📋 FlowSuite</div>
+
+    <div class="org-switcher">
+      <label class="small-label">Organization</label>
+      <select id="org-select" data-testid="org-select"></select>
+    </div>
+
+    <nav class="sidebar-nav">
+      <div class="nav-item active" data-tab="projects" data-testid="nav-projects">📁 Projects</div>
+      <div class="nav-item" data-tab="members" data-testid="nav-members">👥 Members</div>
+      <div class="nav-item" data-tab="billing" data-testid="nav-billing">💳 Billing</div>
+    </nav>
+
+    <div class="sidebar-footer">
+      <div id="current-user-name" class="small-label" data-testid="current-user-name"></div>
+      <div class="nav-item" id="btn-logout" data-testid="btn-logout">🚪 Logout</div>
+    </div>
+  </aside>
+
+  <main class="main-content">
+
+    <!-- PROJECTS TAB -->
+    <section id="tab-projects" class="tab active" data-testid="tab-projects">
+      <div class="tab-header">
+        <h2>Projects</h2>
+        <button class="btn-small" id="btn-new-project" data-testid="btn-new-project">+ New Project</button>
+      </div>
+      <div id="project-list" class="project-list" data-testid="project-list"></div>
+    </section>
+
+    <!-- PROJECT DETAIL (tasks) -->
+    <section id="tab-project-detail" class="tab" data-testid="tab-project-detail">
+      <div class="tab-header">
+        <span class="back-link" id="btn-back-to-projects" data-testid="btn-back-to-projects">← Back to Projects</span>
+      </div>
+      <h2 id="project-detail-name" data-testid="project-detail-name"></h2>
+      <div class="add-task-row">
+        <input type="text" id="new-task-title" data-testid="new-task-title" placeholder="New task title..." />
+        <select id="new-task-assignee" data-testid="new-task-assignee"></select>
+        <button class="btn-small" id="btn-add-task" data-testid="btn-add-task">Add Task</button>
+      </div>
+      <div id="task-list" class="task-list" data-testid="task-list"></div>
+    </section>
+
+    <!-- MEMBERS TAB -->
+    <section id="tab-members" class="tab" data-testid="tab-members">
+      <div class="tab-header">
+        <h2>Members</h2>
+        <button class="btn-small" id="btn-invite-member" data-testid="btn-invite-member">+ Invite Member</button>
+      </div>
+      <div id="invite-form" class="invite-form" style="display:none;">
+        <input type="text" id="invite-name" data-testid="invite-name" placeholder="Name" />
+        <input type="text" id="invite-email" data-testid="invite-email" placeholder="Email" />
+        <select id="invite-role" data-testid="invite-role">
+          <option value="MEMBER">Member</option>
+          <option value="ADMIN">Admin</option>
+          <option value="OWNER">Owner</option>
+        </select>
+        <button class="btn-small" id="btn-submit-invite" data-testid="btn-submit-invite">Send Invite</button>
+      </div>
+      <div id="members-list" class="members-list" data-testid="members-list"></div>
+    </section>
+
+    <!-- BILLING TAB -->
+    <section id="tab-billing" class="tab" data-testid="tab-billing">
+      <h2>Billing &amp; Subscription</h2>
+      <div id="subscription-card" class="subscription-card" data-testid="subscription-card"></div>
+      <div class="plan-options">
+        <div class="plan-card" data-plan="FREE" data-testid="plan-card-FREE">
+          <h3>Free</h3><div class="plan-price">$0/mo</div><div class="plan-limit">3 projects</div>
+          <button class="btn-small btn-select-plan" data-plan="FREE" data-testid="btn-select-plan-FREE">Select</button>
+        </div>
+        <div class="plan-card" data-plan="PRO" data-testid="plan-card-PRO">
+          <h3>Pro</h3><div class="plan-price">$29/mo</div><div class="plan-limit">20 projects</div>
+          <button class="btn-small btn-select-plan" data-plan="PRO" data-testid="btn-select-plan-PRO">Select</button>
+        </div>
+        <div class="plan-card" data-plan="ENTERPRISE" data-testid="plan-card-ENTERPRISE">
+          <h3>Enterprise</h3><div class="plan-price">$99/mo</div><div class="plan-limit">Unlimited projects</div>
+          <button class="btn-small btn-select-plan" data-plan="ENTERPRISE" data-testid="btn-select-plan-ENTERPRISE">Select</button>
+        </div>
+      </div>
+      <button class="btn-link" id="btn-cancel-sub" data-testid="btn-cancel-sub">Cancel Subscription</button>
+
+      <h3 class="section-title">Invoices</h3>
+      <div id="invoice-list" data-testid="invoice-list"></div>
+    </section>
+
+  </main>
+</div>
+
+<div id="toast" class="toast" data-testid="toast"></div>
+
+<script src="js/app.js"></script>
+</body>
+</html>

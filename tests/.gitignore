@@ -1,0 +1,6 @@
+node_modules/
+db/app.db
+full_report.html
+.pytest_cache/
+__pycache__/
+*.pyc

@@ -1,0 +1,17 @@
+{
+  "name": "flowsuite-saas-qa-app",
+  "version": "1.0.0",
+  "description": "A real multi-tenant SaaS project management app for full-spectrum QA practice (Functional, API, RBAC, Billing, Multi-tenancy, Performance, Security, Database)",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "license": "MIT",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.19.2"
+  },
+  "engines": {
+    "node": ">=22.5.0"
+  }
+}

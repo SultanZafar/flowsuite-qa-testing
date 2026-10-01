@@ -1,0 +1,39 @@
+﻿============================= test session starts =============================
+platform win32 -- Python 3.12.7, pytest-9.1.1, pluggy-1.6.0 -- C:\Users\RANA\AppData\Local\Programs\Python\Python312\python.exe
+cachedir: .pytest_cache
+metadata: {'Python': '3.12.7', 'Platform': 'Windows-11-10.0.26200-SP0', 'Packages': {'pytest': '9.1.1', 'pluggy': '1.6.0'}, 'Plugins': {'anyio': '4.14.2', 'base-url': '2.1.0', 'html': '4.2.0', 'metadata': '3.1.1', 'playwright': '0.9.0'}, 'Base URL': ''}
+rootdir: C:\Users\RANA\Desktop\flowsuite\flowsuite
+plugins: anyio-4.14.2, base-url-2.1.0, html-4.2.0, metadata-3.1.1, playwright-0.9.0
+collecting ... collected 28 items
+
+tests/test_billing.py::test_tc23_view_current_plan[chromium] PASSED      [  3%]
+tests/test_billing.py::test_tc24_plan_limits_visible[chromium] PASSED    [  7%]
+tests/test_billing.py::test_tc25_upgrade_button_exists[chromium] PASSED  [ 10%]
+tests/test_login.py::test_tc01_valid_login[chromium] PASSED              [ 14%]
+tests/test_login.py::test_tc02_wrong_password[chromium] PASSED           [ 17%]
+tests/test_login.py::test_tc03_wrong_email[chromium] PASSED              [ 21%]
+tests/test_login.py::test_tc04_empty_email[chromium] PASSED              [ 25%]
+tests/test_login.py::test_tc05_empty_password[chromium] PASSED           [ 28%]
+tests/test_login.py::test_tc06_empty_both[chromium] PASSED               [ 32%]
+tests/test_logout.py::test_tc26_logout_redirects_to_login[chromium] PASSED [ 35%]
+tests/test_logout.py::test_tc27_after_logout_protected_page_blocked[chromium] PASSED [ 39%]
+tests/test_logout.py::test_tc28_login_after_logout[chromium] PASSED      [ 42%]
+tests/test_members.py::test_tc18_view_members_list[chromium] PASSED      [ 46%]
+tests/test_members.py::test_tc19_invite_member[chromium] PASSED          [ 50%]
+tests/test_members.py::test_tc20_invite_invalid_email[chromium] PASSED   [ 53%]
+tests/test_members.py::test_tc21_invite_duplicate_email[chromium] PASSED [ 57%]
+tests/test_members.py::test_tc22_owner_role_visible[chromium] PASSED     [ 60%]
+tests/test_org_switch.py::test_tc14_acme_login_shows_acme_org[chromium] PASSED [ 64%]
+tests/test_org_switch.py::test_tc15_globex_login_shows_globex_org[chromium] PASSED [ 67%]
+tests/test_org_switch.py::test_tc16_acme_cannot_see_globex_project[chromium] PASSED [ 71%]
+tests/test_org_switch.py::test_tc17_org_select_only_shows_own_org[chromium] PASSED [ 75%]
+tests/test_projects.py::test_tc07_create_project[chromium] PASSED        [ 78%]
+tests/test_projects.py::test_tc08_empty_project_name[chromium] PASSED    [ 82%]
+tests/test_projects.py::test_tc09_duplicate_project_name[chromium] PASSED [ 85%]
+tests/test_projects.py::test_tc10_project_persists_after_refresh[chromium] PASSED [ 89%]
+tests/test_projects.py::test_tc11_open_project[chromium] PASSED          [ 92%]
+tests/test_projects.py::test_tc12_free_plan_limit[chromium] PASSED       [ 96%]
+tests/test_projects.py::test_tc13_projects_count_in_list[chromium] PASSED [100%]
+
+- Generated html report: file:///C:/Users/RANA/Desktop/flowsuite/flowsuite/report.html -
+============================= 28 passed in 43.23s =============================

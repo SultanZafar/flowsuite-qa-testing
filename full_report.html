@@ -1,0 +1,1094 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8"/>
+    <title id="head-title">full_report.html</title>
+      <style type="text/css">body {
+  font-family: Helvetica, Arial, sans-serif;
+  font-size: 12px;
+  /* do not increase min-width as some may use split screens */
+  min-width: 800px;
+  color: #999;
+}
+
+h1 {
+  font-size: 24px;
+  color: black;
+}
+
+h2 {
+  font-size: 16px;
+  color: black;
+}
+
+p {
+  color: black;
+}
+
+a {
+  color: #999;
+}
+
+table {
+  border-collapse: collapse;
+}
+
+/******************************
+ * SUMMARY INFORMATION
+ ******************************/
+#environment td {
+  padding: 5px;
+  border: 1px solid #e6e6e6;
+  vertical-align: top;
+}
+#environment tr:nth-child(odd) {
+  background-color: #f6f6f6;
+}
+#environment ul {
+  margin: 0;
+  padding: 0 20px;
+}
+
+/******************************
+ * TEST RESULT COLORS
+ ******************************/
+span.passed,
+.passed .col-result {
+  color: green;
+}
+
+span.skipped,
+span.xfailed,
+span.rerun,
+.skipped .col-result,
+.xfailed .col-result,
+.rerun .col-result {
+  color: orange;
+}
+
+span.error,
+span.failed,
+span.xpassed,
+.error .col-result,
+.failed .col-result,
+.xpassed .col-result {
+  color: red;
+}
+
+.col-links__extra {
+  margin-right: 3px;
+}
+
+/******************************
+ * RESULTS TABLE
+ *
+ * 1. Table Layout
+ * 2. Extra
+ * 3. Sorting items
+ *
+ ******************************/
+/*------------------
+ * 1. Table Layout
+ *------------------*/
+#results-table {
+  border: 1px solid #e6e6e6;
+  color: #999;
+  font-size: 12px;
+  width: 100%;
+}
+#results-table th,
+#results-table td {
+  padding: 5px;
+  border: 1px solid #e6e6e6;
+  text-align: left;
+}
+#results-table th {
+  font-weight: bold;
+}
+
+/*------------------
+ * 2. Extra
+ *------------------*/
+.logwrapper {
+  max-height: 230px;
+  overflow-y: scroll;
+  background-color: #e6e6e6;
+}
+.logwrapper.expanded {
+  max-height: none;
+}
+.logwrapper.expanded .logexpander:after {
+  content: "collapse [-]";
+}
+.logwrapper .logexpander {
+  z-index: 1;
+  position: sticky;
+  top: 10px;
+  width: max-content;
+  border: 1px solid;
+  border-radius: 3px;
+  padding: 5px 7px;
+  margin: 10px 0 10px calc(100% - 80px);
+  cursor: pointer;
+  background-color: #e6e6e6;
+}
+.logwrapper .logexpander:after {
+  content: "expand [+]";
+}
+.logwrapper .logexpander:hover {
+  color: #000;
+  border-color: #000;
+}
+.logwrapper .log {
+  min-height: 40px;
+  position: relative;
+  top: -50px;
+  height: calc(100% + 50px);
+  border: 1px solid #e6e6e6;
+  color: black;
+  display: block;
+  font-family: "Courier New", Courier, monospace;
+  padding: 5px;
+  padding-right: 80px;
+  white-space: pre-wrap;
+}
+
+div.media {
+  border: 1px solid #e6e6e6;
+  float: right;
+  height: 240px;
+  margin: 0 5px;
+  overflow: hidden;
+  width: 320px;
+}
+
+.media-container {
+  display: grid;
+  grid-template-columns: 25px auto 25px;
+  align-items: center;
+  flex: 1 1;
+  overflow: hidden;
+  height: 200px;
+}
+
+.media-container--fullscreen {
+  grid-template-columns: 0px auto 0px;
+}
+
+.media-container__nav--right,
+.media-container__nav--left {
+  text-align: center;
+  cursor: pointer;
+}
+
+.media-container__viewport {
+  cursor: pointer;
+  text-align: center;
+  height: inherit;
+}
+.media-container__viewport img,
+.media-container__viewport video {
+  object-fit: cover;
+  width: 100%;
+  max-height: 100%;
+}
+
+.media__name,
+.media__counter {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-around;
+  flex: 0 0 25px;
+  align-items: center;
+}
+
+.collapsible td:not(.col-links) {
+  cursor: pointer;
+}
+.collapsible td:not(.col-links):hover::after {
+  color: #bbb;
+  font-style: italic;
+  cursor: pointer;
+}
+
+.col-result {
+  width: 130px;
+}
+.col-result:hover::after {
+  content: " (hide details)";
+}
+
+.col-result.collapsed:hover::after {
+  content: " (show details)";
+}
+
+#environment-header h2:hover::after {
+  content: " (hide details)";
+  color: #bbb;
+  font-style: italic;
+  cursor: pointer;
+  font-size: 12px;
+}
+
+#environment-header.collapsed h2:hover::after {
+  content: " (show details)";
+  color: #bbb;
+  font-style: italic;
+  cursor: pointer;
+  font-size: 12px;
+}
+
+/*------------------
+ * 3. Sorting items
+ *------------------*/
+.sortable {
+  cursor: pointer;
+}
+.sortable.desc:after {
+  content: " ";
+  position: relative;
+  left: 5px;
+  bottom: -12.5px;
+  border: 10px solid #4caf50;
+  border-bottom: 0;
+  border-left-color: transparent;
+  border-right-color: transparent;
+}
+.sortable.asc:after {
+  content: " ";
+  position: relative;
+  left: 5px;
+  bottom: 12.5px;
+  border: 10px solid #4caf50;
+  border-top: 0;
+  border-left-color: transparent;
+  border-right-color: transparent;
+}
+
+.hidden, .summary__reload__button.hidden {
+  display: none;
+}
+
+.summary__data {
+  flex: 0 0 550px;
+}
+.summary__reload {
+  flex: 1 1;
+  display: flex;
+  justify-content: center;
+}
+.summary__reload__button {
+  flex: 0 0 300px;
+  display: flex;
+  color: white;
+  font-weight: bold;
+  background-color: #4caf50;
+  text-align: center;
+  justify-content: center;
+  align-items: center;
+  border-radius: 3px;
+  cursor: pointer;
+}
+.summary__reload__button:hover {
+  background-color: #46a049;
+}
+.summary__spacer {
+  flex: 0 0 550px;
+}
+
+.controls {
+  display: flex;
+  justify-content: space-between;
+}
+
+.filters,
+.collapse {
+  display: flex;
+  align-items: center;
+}
+.filters button,
+.collapse button {
+  color: #999;
+  border: none;
+  background: none;
+  cursor: pointer;
+  text-decoration: underline;
+}
+.filters button:hover,
+.collapse button:hover {
+  color: #ccc;
+}
+
+.filter__label {
+  margin-right: 10px;
+}
+
+      </style>
+    
+  </head>
+  <body>
+    <h1 id="title">full_report.html</h1>
+    <p>Report generated on 01-Oct-2026 at 15:22:26 by <a href="https://pypi.python.org/pypi/pytest-html">pytest-html</a>
+        v4.2.0</p>
+    <div id="environment-header">
+      <h2>Environment</h2>
+    </div>
+    <table id="environment"></table>
+    <!-- TEMPLATES -->
+      <template id="template_environment_row">
+      <tr>
+        <td></td>
+        <td></td>
+      </tr>
+    </template>
+    <template id="template_results-table__body--empty">
+      <tbody class="results-table-row">
+        <tr id="not-found-message">
+          <td colspan="4">No results found. Check the filters.</td>
+        </tr>
+      </tbody>
+    </template>
+    <template id="template_results-table__tbody">
+      <tbody class="results-table-row">
+        <tr class="collapsible">
+        </tr>
+        <tr class="extras-row">
+          <td class="extra" colspan="4">
+            <div class="extraHTML"></div>
+            <div class="media">
+              <div class="media-container">
+                  <div class="media-container__nav--left">&lt;</div>
+                  <div class="media-container__viewport">
+                    <img src="" />
+                    <video controls>
+                      <source src="" type="video/mp4">
+                    </video>
+                  </div>
+                  <div class="media-container__nav--right">&gt;</div>
+                </div>
+                <div class="media__name"></div>
+                <div class="media__counter"></div>
+            </div>
+            <div class="logwrapper">
+              <div class="logexpander"></div>
+              <div class="log"></div>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </template>
+    <!-- END TEMPLATES -->
+    <div class="summary">
+      <div class="summary__data">
+        <h2>Summary</h2>
+        <div class="additional-summary prefix">
+        </div>
+        <p class="run-count">100 tests took 00:00:34.</p>
+        <p class="filter">(Un)check the boxes to filter the results.</p>
+        <div class="summary__reload">
+          <div class="summary__reload__button hidden" onclick="location.reload()">
+            <div>There are still tests running. <br />Reload this page to get the latest results!</div>
+          </div>
+        </div>
+        <div class="summary__spacer"></div>
+        <div class="controls">
+          <div class="filters">
+            <input checked="true" class="filter" name="filter_checkbox" type="checkbox" data-test-result="failed" >
+            <span class="failed">25 Failed,</span>
+            <input checked="true" class="filter" name="filter_checkbox" type="checkbox" data-test-result="passed" >
+            <span class="passed">75 Passed,</span>
+            <input checked="true" class="filter" name="filter_checkbox" type="checkbox" data-test-result="skipped" disabled>
+            <span class="skipped">0 Skipped,</span>
+            <input checked="true" class="filter" name="filter_checkbox" type="checkbox" data-test-result="xfailed" disabled>
+            <span class="xfailed">0 Expected failures,</span>
+            <input checked="true" class="filter" name="filter_checkbox" type="checkbox" data-test-result="xpassed" disabled>
+            <span class="xpassed">0 Unexpected passes,</span>
+            <input checked="true" class="filter" name="filter_checkbox" type="checkbox" data-test-result="error" disabled>
+            <span class="error">0 Errors,</span>
+            <input checked="true" class="filter" name="filter_checkbox" type="checkbox" data-test-result="rerun" disabled>
+            <span class="rerun">0 Reruns</span>
+            <input checked="true" class="filter" name="filter_checkbox" type="checkbox" data-test-result="retried" disabled>
+            <span class="retried">0 Retried,</span>
+          </div>
+          <div class="collapse">
+            <button id="show_all_details">Show all details</button>&nbsp;/&nbsp;<button id="hide_all_details">Hide all details</button>
+          </div>
+        </div>
+      </div>
+      <div class="additional-summary summary">
+      </div>
+      <div class="additional-summary postfix">
+      </div>
+    </div>
+    <table id="results-table">
+      <thead id="results-table-head">
+        <tr>
+          <th class="sortable" data-column-type="result">Result</th>
+          <th class="sortable" data-column-type="testId">Test</th>
+          <th class="sortable" data-column-type="duration">Duration</th>
+          <th>Links</th>
+        </tr>
+      </thead>
+    </table>
+  <footer>
+    <div id="data-container" data-jsonblob="{&#34;environment&#34;: {&#34;Python&#34;: &#34;3.12.7&#34;, &#34;Platform&#34;: &#34;Windows-11-10.0.26200-SP0&#34;, &#34;Packages&#34;: {&#34;pytest&#34;: &#34;9.1.1&#34;, &#34;pluggy&#34;: &#34;1.6.0&#34;}, &#34;Plugins&#34;: {&#34;anyio&#34;: &#34;4.14.2&#34;, &#34;base-url&#34;: &#34;2.1.0&#34;, &#34;html&#34;: &#34;4.2.0&#34;, &#34;metadata&#34;: &#34;3.1.1&#34;, &#34;playwright&#34;: &#34;0.9.0&#34;}, &#34;Base URL&#34;: &#34;&#34;}, &#34;tests&#34;: {&#34;tests/test_api_edge_cases.py::test_tc50_invalid_org_id_does_not_crash&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Failed&#34;, &#34;testId&#34;: &#34;tests/test_api_edge_cases.py::test_tc50_invalid_org_id_does_not_crash&#34;, &#34;duration&#34;: &#34;158 ms&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Failed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_api_edge_cases.py::test_tc50_invalid_org_id_does_not_crash&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;158 ms&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;acme_owner = {&amp;#x27;email&amp;#x27;: &amp;#x27;owner@acme.test&amp;#x27;, &amp;#x27;user_id&amp;#x27;: 1, &amp;#x27;headers&amp;#x27;: {&amp;#x27;Authorization&amp;#x27;: &amp;#x27;Bearer dXNlcjox&amp;#x27;}, &amp;#x27;org_id&amp;#x27;: 1, ...}\n\n    def test_tc50_invalid_org_id_does_not_crash(acme_owner):\n        resp = requests.get(f&amp;quot;{BASE_URL}/orgs/not-a-number/projects&amp;quot;, headers=acme_owner[&amp;quot;headers&amp;quot;], timeout=TIMEOUT)\n&amp;gt;       assert resp.status_code in (400, 404), f&amp;quot;Expected 400/404, got {resp.status_code} (server may have crashed)&amp;quot;\nE       AssertionError: Expected 400/404, got 200 (server may have crashed)\nE       assert 200 in (400, 404)\nE        +  where 200 = &amp;lt;Response [200]&amp;gt;.status_code\n\ntests\\test_api_edge_cases.py:10: AssertionError\n&#34;}], &#34;tests/test_api_edge_cases.py::test_tc51_nonexistent_project_returns_404&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Failed&#34;, &#34;testId&#34;: &#34;tests/test_api_edge_cases.py::test_tc51_nonexistent_project_returns_404&#34;, &#34;duration&#34;: &#34;8 ms&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Failed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_api_edge_cases.py::test_tc51_nonexistent_project_returns_404&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;8 ms&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;acme_owner = {&amp;#x27;email&amp;#x27;: &amp;#x27;owner@acme.test&amp;#x27;, &amp;#x27;user_id&amp;#x27;: 1, &amp;#x27;headers&amp;#x27;: {&amp;#x27;Authorization&amp;#x27;: &amp;#x27;Bearer dXNlcjox&amp;#x27;}, &amp;#x27;org_id&amp;#x27;: 1, ...}\n\n    def test_tc51_nonexistent_project_returns_404(acme_owner):\n        resp = requests.get(\n            f&amp;quot;{BASE_URL}/orgs/{acme_owner[&amp;#x27;org_id&amp;#x27;]}/projects/999999/tasks&amp;quot;,\n            headers=acme_owner[&amp;quot;headers&amp;quot;], timeout=TIMEOUT,\n        )\n&amp;gt;       assert resp.status_code == 404\nE       assert 200 == 404\nE        +  where 200 = &amp;lt;Response [200]&amp;gt;.status_code\n\ntests\\test_api_edge_cases.py:18: AssertionError\n&#34;}], &#34;tests/test_api_edge_cases.py::test_tc52_create_project_missing_name_field&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Passed&#34;, &#34;testId&#34;: &#34;tests/test_api_edge_cases.py::test_tc52_create_project_missing_name_field&#34;, &#34;duration&#34;: &#34;11 ms&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Passed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_api_edge_cases.py::test_tc52_create_project_missing_name_field&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;11 ms&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;No log output captured.&#34;}], &#34;tests/test_api_edge_cases.py::test_tc53_wrong_http_method_rejected&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Passed&#34;, &#34;testId&#34;: &#34;tests/test_api_edge_cases.py::test_tc53_wrong_http_method_rejected&#34;, &#34;duration&#34;: &#34;14 ms&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Passed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_api_edge_cases.py::test_tc53_wrong_http_method_rejected&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;14 ms&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;No log output captured.&#34;}], &#34;tests/test_api_edge_cases.py::test_tc54_very_long_project_name_does_not_crash&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Passed&#34;, &#34;testId&#34;: &#34;tests/test_api_edge_cases.py::test_tc54_very_long_project_name_does_not_crash&#34;, &#34;duration&#34;: &#34;23 ms&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Passed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_api_edge_cases.py::test_tc54_very_long_project_name_does_not_crash&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;23 ms&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;No log output captured.&#34;}], &#34;tests/test_api_edge_cases.py::test_tc55_invalid_role_value_rejected&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Passed&#34;, &#34;testId&#34;: &#34;tests/test_api_edge_cases.py::test_tc55_invalid_role_value_rejected&#34;, &#34;duration&#34;: &#34;97 ms&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Passed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_api_edge_cases.py::test_tc55_invalid_role_value_rejected&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;97 ms&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;No log output captured.&#34;}], &#34;tests/test_api_more_edge_cases.py::test_tc75_auth_header_without_bearer_prefix&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Passed&#34;, &#34;testId&#34;: &#34;tests/test_api_more_edge_cases.py::test_tc75_auth_header_without_bearer_prefix&#34;, &#34;duration&#34;: &#34;6 ms&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Passed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_api_more_edge_cases.py::test_tc75_auth_header_without_bearer_prefix&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;6 ms&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;No log output captured.&#34;}], &#34;tests/test_api_more_edge_cases.py::test_tc76_bearer_with_empty_token&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Passed&#34;, &#34;testId&#34;: &#34;tests/test_api_more_edge_cases.py::test_tc76_bearer_with_empty_token&#34;, &#34;duration&#34;: &#34;6 ms&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Passed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_api_more_edge_cases.py::test_tc76_bearer_with_empty_token&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;6 ms&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;No log output captured.&#34;}], &#34;tests/test_api_more_edge_cases.py::test_tc77_garbage_authorization_header&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Passed&#34;, &#34;testId&#34;: &#34;tests/test_api_more_edge_cases.py::test_tc77_garbage_authorization_header&#34;, &#34;duration&#34;: &#34;8 ms&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Passed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_api_more_edge_cases.py::test_tc77_garbage_authorization_header&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;8 ms&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;No log output captured.&#34;}], &#34;tests/test_api_more_edge_cases.py::test_tc78_login_missing_password_field&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Passed&#34;, &#34;testId&#34;: &#34;tests/test_api_more_edge_cases.py::test_tc78_login_missing_password_field&#34;, &#34;duration&#34;: &#34;7 ms&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Passed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_api_more_edge_cases.py::test_tc78_login_missing_password_field&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;7 ms&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;No log output captured.&#34;}], &#34;tests/test_api_more_edge_cases.py::test_tc79_login_missing_email_field&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Passed&#34;, &#34;testId&#34;: &#34;tests/test_api_more_edge_cases.py::test_tc79_login_missing_email_field&#34;, &#34;duration&#34;: &#34;9 ms&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Passed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_api_more_edge_cases.py::test_tc79_login_missing_email_field&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;9 ms&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;No log output captured.&#34;}], &#34;tests/test_api_more_edge_cases.py::test_tc80_login_extra_unexpected_field_is_ignored&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Passed&#34;, &#34;testId&#34;: &#34;tests/test_api_more_edge_cases.py::test_tc80_login_extra_unexpected_field_is_ignored&#34;, &#34;duration&#34;: &#34;92 ms&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Passed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_api_more_edge_cases.py::test_tc80_login_extra_unexpected_field_is_ignored&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;92 ms&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;No log output captured.&#34;}], &#34;tests/test_api_more_edge_cases.py::test_tc94_login_email_case_sensitivity_observation&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Passed&#34;, &#34;testId&#34;: &#34;tests/test_api_more_edge_cases.py::test_tc94_login_email_case_sensitivity_observation&#34;, &#34;duration&#34;: &#34;17 ms&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Passed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_api_more_edge_cases.py::test_tc94_login_email_case_sensitivity_observation&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;17 ms&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;----------------------------- Captured stdout call -----------------------------\nUppercase email login status: 401\n&#34;}], &#34;tests/test_api_more_edge_cases.py::test_tc95_login_email_with_whitespace_observation&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Passed&#34;, &#34;testId&#34;: &#34;tests/test_api_more_edge_cases.py::test_tc95_login_email_with_whitespace_observation&#34;, &#34;duration&#34;: &#34;12 ms&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Passed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_api_more_edge_cases.py::test_tc95_login_email_with_whitespace_observation&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;12 ms&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;----------------------------- Captured stdout call -----------------------------\nWhitespace-padded email login status: 401\n&#34;}], &#34;tests/test_api_more_edge_cases.py::test_tc81_project_name_whitespace_only&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Failed&#34;, &#34;testId&#34;: &#34;tests/test_api_more_edge_cases.py::test_tc81_project_name_whitespace_only&#34;, &#34;duration&#34;: &#34;29 ms&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Failed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_api_more_edge_cases.py::test_tc81_project_name_whitespace_only&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;29 ms&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;acme_owner = {&amp;#x27;email&amp;#x27;: &amp;#x27;owner@acme.test&amp;#x27;, &amp;#x27;user_id&amp;#x27;: 1, &amp;#x27;headers&amp;#x27;: {&amp;#x27;Authorization&amp;#x27;: &amp;#x27;Bearer dXNlcjox&amp;#x27;}, &amp;#x27;org_id&amp;#x27;: 1, ...}\n\n    def test_tc81_project_name_whitespace_only(acme_owner):\n        resp = requests.post(\n            f&amp;quot;{BASE_URL}/orgs/{acme_owner[&amp;#x27;org_id&amp;#x27;]}/projects&amp;quot;,\n            headers=acme_owner[&amp;quot;headers&amp;quot;], json={&amp;quot;name&amp;quot;: &amp;quot;   &amp;quot;}, timeout=TIMEOUT,\n        )\n&amp;gt;       assert resp.status_code in (400, 422), (\n            f&amp;quot;BUG-16: whitespace-only project name was accepted (HTTP {resp.status_code})&amp;quot;\n        )\nE       AssertionError: BUG-16: whitespace-only project name was accepted (HTTP 201)\nE       assert 201 in (400, 422)\nE        +  where 201 = &amp;lt;Response [201]&amp;gt;.status_code\n\ntests\\test_api_more_edge_cases.py:86: AssertionError\n&#34;}], &#34;tests/test_api_more_edge_cases.py::test_tc82_project_name_wrong_type&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Passed&#34;, &#34;testId&#34;: &#34;tests/test_api_more_edge_cases.py::test_tc82_project_name_wrong_type&#34;, &#34;duration&#34;: &#34;32 ms&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Passed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_api_more_edge_cases.py::test_tc82_project_name_wrong_type&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;32 ms&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;No log output captured.&#34;}], &#34;tests/test_api_more_edge_cases.py::test_tc83_project_name_with_emoji_and_unicode&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Passed&#34;, &#34;testId&#34;: &#34;tests/test_api_more_edge_cases.py::test_tc83_project_name_with_emoji_and_unicode&#34;, &#34;duration&#34;: &#34;34 ms&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Passed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_api_more_edge_cases.py::test_tc83_project_name_with_emoji_and_unicode&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;34 ms&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;No log output captured.&#34;}], &#34;tests/test_api_more_edge_cases.py::test_tc84_get_projects_for_nonexistent_org&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Failed&#34;, &#34;testId&#34;: &#34;tests/test_api_more_edge_cases.py::test_tc84_get_projects_for_nonexistent_org&#34;, &#34;duration&#34;: &#34;10 ms&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Failed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_api_more_edge_cases.py::test_tc84_get_projects_for_nonexistent_org&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;10 ms&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;acme_owner = {&amp;#x27;email&amp;#x27;: &amp;#x27;owner@acme.test&amp;#x27;, &amp;#x27;user_id&amp;#x27;: 1, &amp;#x27;headers&amp;#x27;: {&amp;#x27;Authorization&amp;#x27;: &amp;#x27;Bearer dXNlcjox&amp;#x27;}, &amp;#x27;org_id&amp;#x27;: 1, ...}\n\n    def test_tc84_get_projects_for_nonexistent_org(acme_owner):\n        resp = requests.get(\n            f&amp;quot;{BASE_URL}/orgs/999999/projects&amp;quot;, headers=acme_owner[&amp;quot;headers&amp;quot;], timeout=TIMEOUT,\n        )\n&amp;gt;       assert resp.status_code in (403, 404), f&amp;quot;Expected 403/404, got {resp.status_code}&amp;quot;\nE       AssertionError: Expected 403/404, got 200\nE       assert 200 in (403, 404)\nE        +  where 200 = &amp;lt;Response [200]&amp;gt;.status_code\n\ntests\\test_api_more_edge_cases.py:113: AssertionError\n&#34;}], &#34;tests/test_api_more_edge_cases.py::test_tc98_org_id_negative&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Failed&#34;, &#34;testId&#34;: &#34;tests/test_api_more_edge_cases.py::test_tc98_org_id_negative&#34;, &#34;duration&#34;: &#34;12 ms&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Failed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_api_more_edge_cases.py::test_tc98_org_id_negative&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;12 ms&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;acme_owner = {&amp;#x27;email&amp;#x27;: &amp;#x27;owner@acme.test&amp;#x27;, &amp;#x27;user_id&amp;#x27;: 1, &amp;#x27;headers&amp;#x27;: {&amp;#x27;Authorization&amp;#x27;: &amp;#x27;Bearer dXNlcjox&amp;#x27;}, &amp;#x27;org_id&amp;#x27;: 1, ...}\n\n    def test_tc98_org_id_negative(acme_owner):\n        resp = requests.get(\n            f&amp;quot;{BASE_URL}/orgs/-1/projects&amp;quot;, headers=acme_owner[&amp;quot;headers&amp;quot;], timeout=TIMEOUT,\n        )\n&amp;gt;       assert resp.status_code in (400, 403, 404), f&amp;quot;Expected 400/403/404, got {resp.status_code}&amp;quot;\nE       AssertionError: Expected 400/403/404, got 200\nE       assert 200 in (400, 403, 404)\nE        +  where 200 = &amp;lt;Response [200]&amp;gt;.status_code\n\ntests\\test_api_more_edge_cases.py:120: AssertionError\n&#34;}], &#34;tests/test_api_more_edge_cases.py::test_tc85_invite_with_empty_name&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Passed&#34;, &#34;testId&#34;: &#34;tests/test_api_more_edge_cases.py::test_tc85_invite_with_empty_name&#34;, &#34;duration&#34;: &#34;6 ms&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Passed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_api_more_edge_cases.py::test_tc85_invite_with_empty_name&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;6 ms&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;No log output captured.&#34;}], &#34;tests/test_api_more_edge_cases.py::test_tc86_change_role_of_nonexistent_user&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Passed&#34;, &#34;testId&#34;: &#34;tests/test_api_more_edge_cases.py::test_tc86_change_role_of_nonexistent_user&#34;, &#34;duration&#34;: &#34;10 ms&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Passed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_api_more_edge_cases.py::test_tc86_change_role_of_nonexistent_user&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;10 ms&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;No log output captured.&#34;}], &#34;tests/test_api_more_edge_cases.py::test_tc87_change_role_to_same_role_is_a_noop&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Passed&#34;, &#34;testId&#34;: &#34;tests/test_api_more_edge_cases.py::test_tc87_change_role_to_same_role_is_a_noop&#34;, &#34;duration&#34;: &#34;114 ms&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Passed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_api_more_edge_cases.py::test_tc87_change_role_to_same_role_is_a_noop&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;114 ms&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;No log output captured.&#34;}], &#34;tests/test_api_more_edge_cases.py::test_tc96_invite_missing_role_field_observation&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Passed&#34;, &#34;testId&#34;: &#34;tests/test_api_more_edge_cases.py::test_tc96_invite_missing_role_field_observation&#34;, &#34;duration&#34;: &#34;7 ms&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Passed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_api_more_edge_cases.py::test_tc96_invite_missing_role_field_observation&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;7 ms&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;----------------------------- Captured stdout call -----------------------------\nInvite with no role field status: 400 {&amp;quot;error&amp;quot;:&amp;quot;name, email and role are required&amp;quot;}\n&#34;}], &#34;tests/test_api_more_edge_cases.py::test_tc88_create_task_with_empty_title&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Passed&#34;, &#34;testId&#34;: &#34;tests/test_api_more_edge_cases.py::test_tc88_create_task_with_empty_title&#34;, &#34;duration&#34;: &#34;23 ms&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Passed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_api_more_edge_cases.py::test_tc88_create_task_with_empty_title&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;23 ms&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;No log output captured.&#34;}], &#34;tests/test_api_more_edge_cases.py::test_tc89_create_task_without_assignee&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Passed&#34;, &#34;testId&#34;: &#34;tests/test_api_more_edge_cases.py::test_tc89_create_task_without_assignee&#34;, &#34;duration&#34;: &#34;20 ms&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Passed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_api_more_edge_cases.py::test_tc89_create_task_without_assignee&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;20 ms&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;No log output captured.&#34;}], &#34;tests/test_api_more_edge_cases.py::test_tc90_very_long_task_title_does_not_crash&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Passed&#34;, &#34;testId&#34;: &#34;tests/test_api_more_edge_cases.py::test_tc90_very_long_task_title_does_not_crash&#34;, &#34;duration&#34;: &#34;18 ms&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Passed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_api_more_edge_cases.py::test_tc90_very_long_task_title_does_not_crash&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;18 ms&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;No log output captured.&#34;}], &#34;tests/test_api_more_edge_cases.py::test_tc91_tasks_of_other_orgs_project_under_own_org_path&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Failed&#34;, &#34;testId&#34;: &#34;tests/test_api_more_edge_cases.py::test_tc91_tasks_of_other_orgs_project_under_own_org_path&#34;, &#34;duration&#34;: &#34;111 ms&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Failed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_api_more_edge_cases.py::test_tc91_tasks_of_other_orgs_project_under_own_org_path&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;111 ms&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;acme_owner = {&amp;#x27;email&amp;#x27;: &amp;#x27;owner@acme.test&amp;#x27;, &amp;#x27;user_id&amp;#x27;: 1, &amp;#x27;headers&amp;#x27;: {&amp;#x27;Authorization&amp;#x27;: &amp;#x27;Bearer dXNlcjox&amp;#x27;}, &amp;#x27;org_id&amp;#x27;: 1, ...}\nglobex_project_id = 3\n\n    def test_tc91_tasks_of_other_orgs_project_under_own_org_path(acme_owner, globex_project_id):\n        &amp;quot;&amp;quot;&amp;quot;IDOR variant: own org_id in the path, but a project_id belonging to Globex.&amp;quot;&amp;quot;&amp;quot;\n        resp = requests.get(\n            f&amp;quot;{BASE_URL}/orgs/{acme_owner[&amp;#x27;org_id&amp;#x27;]}/projects/{globex_project_id}/tasks&amp;quot;,\n            headers=acme_owner[&amp;quot;headers&amp;quot;], timeout=TIMEOUT,\n        )\n&amp;gt;       assert resp.status_code in (403, 404), (\n            f&amp;quot;BUG-19: read another org&amp;#x27;s project via ID under own org path (HTTP {resp.status_code})&amp;quot;\n        )\nE       AssertionError: BUG-19: read another org&amp;#x27;s project via ID under own org path (HTTP 200)\nE       assert 200 in (403, 404)\nE        +  where 200 = &amp;lt;Response [200]&amp;gt;.status_code\n\ntests\\test_api_more_edge_cases.py:194: AssertionError\n&#34;}], &#34;tests/test_api_more_edge_cases.py::test_tc92_options_preflight_does_not_crash&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Passed&#34;, &#34;testId&#34;: &#34;tests/test_api_more_edge_cases.py::test_tc92_options_preflight_does_not_crash&#34;, &#34;duration&#34;: &#34;5 ms&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Passed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_api_more_edge_cases.py::test_tc92_options_preflight_does_not_crash&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;5 ms&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;No log output captured.&#34;}], &#34;tests/test_api_more_edge_cases.py::test_tc93_response_content_type_is_json&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Passed&#34;, &#34;testId&#34;: &#34;tests/test_api_more_edge_cases.py::test_tc93_response_content_type_is_json&#34;, &#34;duration&#34;: &#34;13 ms&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Passed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_api_more_edge_cases.py::test_tc93_response_content_type_is_json&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;13 ms&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;No log output captured.&#34;}], &#34;tests/test_api_more_edge_cases.py::test_tc97_unexpected_query_params_ignored&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Passed&#34;, &#34;testId&#34;: &#34;tests/test_api_more_edge_cases.py::test_tc97_unexpected_query_params_ignored&#34;, &#34;duration&#34;: &#34;11 ms&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Passed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_api_more_edge_cases.py::test_tc97_unexpected_query_params_ignored&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;11 ms&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;No log output captured.&#34;}], &#34;tests/test_billing.py::test_tc23_view_current_plan[chromium]&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Passed&#34;, &#34;testId&#34;: &#34;tests/test_billing.py::test_tc23_view_current_plan[chromium]&#34;, &#34;duration&#34;: &#34;00:00:04&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Passed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_billing.py::test_tc23_view_current_plan[chromium]&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;00:00:04&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;No log output captured.&#34;}], &#34;tests/test_billing.py::test_tc24_plan_limits_visible[chromium]&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Passed&#34;, &#34;testId&#34;: &#34;tests/test_billing.py::test_tc24_plan_limits_visible[chromium]&#34;, &#34;duration&#34;: &#34;656 ms&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Passed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_billing.py::test_tc24_plan_limits_visible[chromium]&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;656 ms&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;No log output captured.&#34;}], &#34;tests/test_billing.py::test_tc25_upgrade_button_exists[chromium]&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Passed&#34;, &#34;testId&#34;: &#34;tests/test_billing.py::test_tc25_upgrade_button_exists[chromium]&#34;, &#34;duration&#34;: &#34;889 ms&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Passed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_billing.py::test_tc25_upgrade_button_exists[chromium]&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;889 ms&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;No log output captured.&#34;}], &#34;tests/test_login.py::test_tc01_valid_login[chromium]&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Passed&#34;, &#34;testId&#34;: &#34;tests/test_login.py::test_tc01_valid_login[chromium]&#34;, &#34;duration&#34;: &#34;872 ms&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Passed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_login.py::test_tc01_valid_login[chromium]&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;872 ms&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;No log output captured.&#34;}], &#34;tests/test_login.py::test_tc02_wrong_password[chromium]&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Passed&#34;, &#34;testId&#34;: &#34;tests/test_login.py::test_tc02_wrong_password[chromium]&#34;, &#34;duration&#34;: &#34;431 ms&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Passed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_login.py::test_tc02_wrong_password[chromium]&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;431 ms&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;No log output captured.&#34;}], &#34;tests/test_login.py::test_tc03_wrong_email[chromium]&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Passed&#34;, &#34;testId&#34;: &#34;tests/test_login.py::test_tc03_wrong_email[chromium]&#34;, &#34;duration&#34;: &#34;486 ms&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Passed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_login.py::test_tc03_wrong_email[chromium]&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;486 ms&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;No log output captured.&#34;}], &#34;tests/test_login.py::test_tc04_empty_email[chromium]&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Passed&#34;, &#34;testId&#34;: &#34;tests/test_login.py::test_tc04_empty_email[chromium]&#34;, &#34;duration&#34;: &#34;485 ms&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Passed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_login.py::test_tc04_empty_email[chromium]&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;485 ms&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;No log output captured.&#34;}], &#34;tests/test_login.py::test_tc05_empty_password[chromium]&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Passed&#34;, &#34;testId&#34;: &#34;tests/test_login.py::test_tc05_empty_password[chromium]&#34;, &#34;duration&#34;: &#34;405 ms&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Passed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_login.py::test_tc05_empty_password[chromium]&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;405 ms&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;No log output captured.&#34;}], &#34;tests/test_login.py::test_tc06_empty_both[chromium]&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Passed&#34;, &#34;testId&#34;: &#34;tests/test_login.py::test_tc06_empty_both[chromium]&#34;, &#34;duration&#34;: &#34;502 ms&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Passed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_login.py::test_tc06_empty_both[chromium]&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;502 ms&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;No log output captured.&#34;}], &#34;tests/test_logout.py::test_tc26_logout_redirects_to_login[chromium]&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Passed&#34;, &#34;testId&#34;: &#34;tests/test_logout.py::test_tc26_logout_redirects_to_login[chromium]&#34;, &#34;duration&#34;: &#34;916 ms&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Passed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_logout.py::test_tc26_logout_redirects_to_login[chromium]&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;916 ms&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;No log output captured.&#34;}], &#34;tests/test_logout.py::test_tc27_after_logout_protected_page_blocked[chromium]&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Passed&#34;, &#34;testId&#34;: &#34;tests/test_logout.py::test_tc27_after_logout_protected_page_blocked[chromium]&#34;, &#34;duration&#34;: &#34;743 ms&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Passed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_logout.py::test_tc27_after_logout_protected_page_blocked[chromium]&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;743 ms&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;No log output captured.&#34;}], &#34;tests/test_logout.py::test_tc28_login_after_logout[chromium]&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Passed&#34;, &#34;testId&#34;: &#34;tests/test_logout.py::test_tc28_login_after_logout[chromium]&#34;, &#34;duration&#34;: &#34;952 ms&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Passed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_logout.py::test_tc28_login_after_logout[chromium]&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;952 ms&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;No log output captured.&#34;}], &#34;tests/test_members.py::test_tc18_view_members_list[chromium]&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Passed&#34;, &#34;testId&#34;: &#34;tests/test_members.py::test_tc18_view_members_list[chromium]&#34;, &#34;duration&#34;: &#34;595 ms&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Passed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_members.py::test_tc18_view_members_list[chromium]&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;595 ms&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;No log output captured.&#34;}], &#34;tests/test_members.py::test_tc19_invite_member[chromium]&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Passed&#34;, &#34;testId&#34;: &#34;tests/test_members.py::test_tc19_invite_member[chromium]&#34;, &#34;duration&#34;: &#34;00:00:01&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Passed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_members.py::test_tc19_invite_member[chromium]&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;00:00:01&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;No log output captured.&#34;}], &#34;tests/test_members.py::test_tc20_invite_invalid_email[chromium]&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Passed&#34;, &#34;testId&#34;: &#34;tests/test_members.py::test_tc20_invite_invalid_email[chromium]&#34;, &#34;duration&#34;: &#34;00:00:01&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Passed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_members.py::test_tc20_invite_invalid_email[chromium]&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;00:00:01&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;No log output captured.&#34;}], &#34;tests/test_members.py::test_tc21_invite_duplicate_email[chromium]&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Passed&#34;, &#34;testId&#34;: &#34;tests/test_members.py::test_tc21_invite_duplicate_email[chromium]&#34;, &#34;duration&#34;: &#34;00:00:01&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Passed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_members.py::test_tc21_invite_duplicate_email[chromium]&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;00:00:01&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;No log output captured.&#34;}], &#34;tests/test_members.py::test_tc22_owner_role_visible[chromium]&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Passed&#34;, &#34;testId&#34;: &#34;tests/test_members.py::test_tc22_owner_role_visible[chromium]&#34;, &#34;duration&#34;: &#34;978 ms&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Passed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_members.py::test_tc22_owner_role_visible[chromium]&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;978 ms&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;No log output captured.&#34;}], &#34;tests/test_org_switch.py::test_tc14_acme_login_shows_acme_org[chromium]&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Passed&#34;, &#34;testId&#34;: &#34;tests/test_org_switch.py::test_tc14_acme_login_shows_acme_org[chromium]&#34;, &#34;duration&#34;: &#34;767 ms&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Passed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_org_switch.py::test_tc14_acme_login_shows_acme_org[chromium]&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;767 ms&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;No log output captured.&#34;}], &#34;tests/test_org_switch.py::test_tc15_globex_login_shows_globex_org[chromium]&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Passed&#34;, &#34;testId&#34;: &#34;tests/test_org_switch.py::test_tc15_globex_login_shows_globex_org[chromium]&#34;, &#34;duration&#34;: &#34;738 ms&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Passed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_org_switch.py::test_tc15_globex_login_shows_globex_org[chromium]&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;738 ms&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;No log output captured.&#34;}], &#34;tests/test_org_switch.py::test_tc16_acme_cannot_see_globex_project[chromium]&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Passed&#34;, &#34;testId&#34;: &#34;tests/test_org_switch.py::test_tc16_acme_cannot_see_globex_project[chromium]&#34;, &#34;duration&#34;: &#34;479 ms&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Passed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_org_switch.py::test_tc16_acme_cannot_see_globex_project[chromium]&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;479 ms&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;No log output captured.&#34;}], &#34;tests/test_org_switch.py::test_tc17_org_select_only_shows_own_org[chromium]&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Passed&#34;, &#34;testId&#34;: &#34;tests/test_org_switch.py::test_tc17_org_select_only_shows_own_org[chromium]&#34;, &#34;duration&#34;: &#34;476 ms&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Passed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_org_switch.py::test_tc17_org_select_only_shows_own_org[chromium]&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;476 ms&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;No log output captured.&#34;}], &#34;tests/test_projects.py::test_tc07_create_project[chromium]&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Passed&#34;, &#34;testId&#34;: &#34;tests/test_projects.py::test_tc07_create_project[chromium]&#34;, &#34;duration&#34;: &#34;977 ms&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Passed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_projects.py::test_tc07_create_project[chromium]&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;977 ms&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;No log output captured.&#34;}], &#34;tests/test_projects.py::test_tc08_empty_project_name[chromium]&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Passed&#34;, &#34;testId&#34;: &#34;tests/test_projects.py::test_tc08_empty_project_name[chromium]&#34;, &#34;duration&#34;: &#34;00:00:02&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Passed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_projects.py::test_tc08_empty_project_name[chromium]&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;00:00:02&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;No log output captured.&#34;}], &#34;tests/test_projects.py::test_tc09_duplicate_project_name[chromium]&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Passed&#34;, &#34;testId&#34;: &#34;tests/test_projects.py::test_tc09_duplicate_project_name[chromium]&#34;, &#34;duration&#34;: &#34;00:00:01&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Passed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_projects.py::test_tc09_duplicate_project_name[chromium]&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;00:00:01&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;No log output captured.&#34;}], &#34;tests/test_projects.py::test_tc10_project_persists_after_refresh[chromium]&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Passed&#34;, &#34;testId&#34;: &#34;tests/test_projects.py::test_tc10_project_persists_after_refresh[chromium]&#34;, &#34;duration&#34;: &#34;00:00:01&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Passed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_projects.py::test_tc10_project_persists_after_refresh[chromium]&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;00:00:01&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;No log output captured.&#34;}], &#34;tests/test_projects.py::test_tc11_open_project[chromium]&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Passed&#34;, &#34;testId&#34;: &#34;tests/test_projects.py::test_tc11_open_project[chromium]&#34;, &#34;duration&#34;: &#34;824 ms&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Passed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_projects.py::test_tc11_open_project[chromium]&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;824 ms&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;No log output captured.&#34;}], &#34;tests/test_projects.py::test_tc12_free_plan_limit[chromium]&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Passed&#34;, &#34;testId&#34;: &#34;tests/test_projects.py::test_tc12_free_plan_limit[chromium]&#34;, &#34;duration&#34;: &#34;884 ms&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Passed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_projects.py::test_tc12_free_plan_limit[chromium]&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;884 ms&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;No log output captured.&#34;}], &#34;tests/test_projects.py::test_tc13_projects_count_in_list[chromium]&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Passed&#34;, &#34;testId&#34;: &#34;tests/test_projects.py::test_tc13_projects_count_in_list[chromium]&#34;, &#34;duration&#34;: &#34;732 ms&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Passed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_projects.py::test_tc13_projects_count_in_list[chromium]&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;732 ms&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;No log output captured.&#34;}], &#34;tests/test_billing_api.py::test_tc47_cannot_change_other_orgs_plan&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Passed&#34;, &#34;testId&#34;: &#34;tests/test_billing_api.py::test_tc47_cannot_change_other_orgs_plan&#34;, &#34;duration&#34;: &#34;14 ms&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Passed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_billing_api.py::test_tc47_cannot_change_other_orgs_plan&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;14 ms&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;No log output captured.&#34;}], &#34;tests/test_billing_api.py::test_tc48_cannot_cancel_other_orgs_subscription&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Passed&#34;, &#34;testId&#34;: &#34;tests/test_billing_api.py::test_tc48_cannot_cancel_other_orgs_subscription&#34;, &#34;duration&#34;: &#34;12 ms&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Passed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_billing_api.py::test_tc48_cannot_cancel_other_orgs_subscription&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;12 ms&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;No log output captured.&#34;}], &#34;tests/test_billing_api.py::test_tc49_free_plan_limit_enforced_at_api&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Failed&#34;, &#34;testId&#34;: &#34;tests/test_billing_api.py::test_tc49_free_plan_limit_enforced_at_api&#34;, &#34;duration&#34;: &#34;75 ms&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Failed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_billing_api.py::test_tc49_free_plan_limit_enforced_at_api&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;75 ms&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;acme_owner = {&amp;#x27;email&amp;#x27;: &amp;#x27;owner@acme.test&amp;#x27;, &amp;#x27;user_id&amp;#x27;: 1, &amp;#x27;headers&amp;#x27;: {&amp;#x27;Authorization&amp;#x27;: &amp;#x27;Bearer dXNlcjox&amp;#x27;}, &amp;#x27;org_id&amp;#x27;: 1, ...}\n\n    def test_tc49_free_plan_limit_enforced_at_api(acme_owner):\n        &amp;quot;&amp;quot;&amp;quot;Same FREE-plan-limit-3 bug (TC12) checked directly against the API, not the UI.&amp;quot;&amp;quot;&amp;quot;\n        last_status = None\n        for i in range(4):\n            resp = requests.post(\n                f&amp;quot;{BASE_URL}/orgs/{acme_owner[&amp;#x27;org_id&amp;#x27;]}/projects&amp;quot;,\n                headers=acme_owner[&amp;quot;headers&amp;quot;],\n                json={&amp;quot;name&amp;quot;: f&amp;quot;limit-check-{unique_email(&amp;#x27;x&amp;#x27;)}&amp;quot;},\n                timeout=TIMEOUT,\n            )\n            last_status = resp.status_code\n&amp;gt;       assert last_status in (403, 422), (\n            f&amp;quot;BUG-04: 4th project on FREE plan was created via API too (HTTP {last_status})&amp;quot;\n        )\nE       AssertionError: BUG-04: 4th project on FREE plan was created via API too (HTTP 201)\nE       assert 201 in (403, 422)\n\ntests\\test_billing_api.py:47: AssertionError\n&#34;}], &#34;tests/test_billing_api.py::test_tc101_canceled_org_loses_access&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Failed&#34;, &#34;testId&#34;: &#34;tests/test_billing_api.py::test_tc101_canceled_org_loses_access&#34;, &#34;duration&#34;: &#34;158 ms&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Failed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_billing_api.py::test_tc101_canceled_org_loses_access&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;158 ms&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;fresh_org = {&amp;#x27;email&amp;#x27;: &amp;#x27;billing-0f08d845@test.local&amp;#x27;, &amp;#x27;user_id&amp;#x27;: 23, &amp;#x27;headers&amp;#x27;: {&amp;#x27;Authorization&amp;#x27;: &amp;#x27;Bearer dXNlcjoyMw==&amp;#x27;}, &amp;#x27;org_id&amp;#x27;: 3}\n\n    def test_tc101_canceled_org_loses_access(fresh_org):\n        &amp;quot;&amp;quot;&amp;quot;BILL-03: after cancelling, the organization must not keep creating projects.&amp;quot;&amp;quot;&amp;quot;\n        org_id = fresh_org[&amp;quot;org_id&amp;quot;]\n    \n        assert cancel_subscription(fresh_org, org_id).status_code == 200\n        assert get_subscription(fresh_org, org_id).json()[&amp;quot;status&amp;quot;] == &amp;quot;CANCELED&amp;quot;\n    \n        resp = create_project(fresh_org, org_id, &amp;quot;Created after cancel&amp;quot;)\n&amp;gt;       assert resp.status_code in (401, 402, 403), (\n            f&amp;quot;BUG-07: CANCELED org still created a project (HTTP {resp.status_code}, expected it to be blocked)&amp;quot;\n        )\nE       AssertionError: BUG-07: CANCELED org still created a project (HTTP 201, expected it to be blocked)\nE       assert 201 in (401, 402, 403)\nE        +  where 201 = &amp;lt;Response [201]&amp;gt;.status_code\n\ntests\\test_billing_api.py:58: AssertionError\n&#34;}], &#34;tests/test_billing_extra.py::test_tc70_downgrade_updates_plan&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Passed&#34;, &#34;testId&#34;: &#34;tests/test_billing_extra.py::test_tc70_downgrade_updates_plan&#34;, &#34;duration&#34;: &#34;52 ms&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Passed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_billing_extra.py::test_tc70_downgrade_updates_plan&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;52 ms&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;No log output captured.&#34;}], &#34;tests/test_billing_extra.py::test_tc71_cancel_subscription_updates_status&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Passed&#34;, &#34;testId&#34;: &#34;tests/test_billing_extra.py::test_tc71_cancel_subscription_updates_status&#34;, &#34;duration&#34;: &#34;102 ms&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Passed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_billing_extra.py::test_tc71_cancel_subscription_updates_status&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;102 ms&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;----------------------------- Captured stdout call -----------------------------\ncancel status: 200 {&amp;quot;success&amp;quot;:true}\n&#34;}], &#34;tests/test_billing_extra.py::test_tc72_invalid_plan_name_rejected&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Passed&#34;, &#34;testId&#34;: &#34;tests/test_billing_extra.py::test_tc72_invalid_plan_name_rejected&#34;, &#34;duration&#34;: &#34;77 ms&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Passed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_billing_extra.py::test_tc72_invalid_plan_name_rejected&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;77 ms&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;No log output captured.&#34;}], &#34;tests/test_billing_extra.py::test_tc73_unauthenticated_upgrade_blocked&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Passed&#34;, &#34;testId&#34;: &#34;tests/test_billing_extra.py::test_tc73_unauthenticated_upgrade_blocked&#34;, &#34;duration&#34;: &#34;24 ms&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Passed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_billing_extra.py::test_tc73_unauthenticated_upgrade_blocked&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;24 ms&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;No log output captured.&#34;}], &#34;tests/test_billing_extra.py::test_tc74_invoice_amount_matches_plan_price&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Failed&#34;, &#34;testId&#34;: &#34;tests/test_billing_extra.py::test_tc74_invoice_amount_matches_plan_price&#34;, &#34;duration&#34;: &#34;33 ms&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Failed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_billing_extra.py::test_tc74_invoice_amount_matches_plan_price&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;33 ms&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;def test_tc74_invoice_amount_matches_plan_price():\n        &amp;quot;&amp;quot;&amp;quot;BILL-04 (DB check): every invoice&amp;#x27;s amount must match its plan&amp;#x27;s listed price.&amp;quot;&amp;quot;&amp;quot;\n        import sqlite3, os\n        plan_prices = {&amp;quot;FREE&amp;quot;: 0, &amp;quot;PRO&amp;quot;: 29, &amp;quot;ENTERPRISE&amp;quot;: 99}\n        db_path = os.path.join(os.path.dirname(__file__), &amp;quot;..&amp;quot;, &amp;quot;db&amp;quot;, &amp;quot;app.db&amp;quot;)\n        conn = sqlite3.connect(db_path)\n        conn.row_factory = sqlite3.Row\n        rows = conn.execute(&amp;quot;SELECT invoice_id, plan, amount FROM Invoices&amp;quot;).fetchall()\n        conn.close()\n        bad = [dict(r) for r in rows if r[&amp;quot;plan&amp;quot;] in plan_prices and r[&amp;quot;amount&amp;quot;] != plan_prices[r[&amp;quot;plan&amp;quot;]]]\n&amp;gt;       assert not bad, f&amp;quot;BUG-12: invoice amount doesn&amp;#x27;t match plan price: {bad}&amp;quot;\nE       AssertionError: BUG-12: invoice amount doesn&amp;#x27;t match plan price: [{&amp;#x27;invoice_id&amp;#x27;: 2, &amp;#x27;plan&amp;#x27;: &amp;#x27;FREE&amp;#x27;, &amp;#x27;amount&amp;#x27;: 29.0}, {&amp;#x27;invoice_id&amp;#x27;: 5, &amp;#x27;plan&amp;#x27;: &amp;#x27;FREE&amp;#x27;, &amp;#x27;amount&amp;#x27;: 29.0}, {&amp;#x27;invoice_id&amp;#x27;: 8, &amp;#x27;plan&amp;#x27;: &amp;#x27;FREE&amp;#x27;, &amp;#x27;amount&amp;#x27;: 29.0}]\nE       assert not [{&amp;#x27;invoice_id&amp;#x27;: 2, &amp;#x27;plan&amp;#x27;: &amp;#x27;FREE&amp;#x27;, &amp;#x27;amount&amp;#x27;: 29.0}, {&amp;#x27;invoice_id&amp;#x27;: 5, &amp;#x27;plan&amp;#x27;: &amp;#x27;FREE&amp;#x27;, &amp;#x27;amount&amp;#x27;: 29.0}, {&amp;#x27;invoice_id&amp;#x27;: 8, &amp;#x27;plan&amp;#x27;: &amp;#x27;FREE&amp;#x27;, &amp;#x27;amount&amp;#x27;: 29.0}]\n\ntests\\test_billing_extra.py:66: AssertionError\n&#34;}], &#34;tests/test_database.py::test_tc56_can_connect_and_list_tables&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Passed&#34;, &#34;testId&#34;: &#34;tests/test_database.py::test_tc56_can_connect_and_list_tables&#34;, &#34;duration&#34;: &#34;3 ms&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Passed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_database.py::test_tc56_can_connect_and_list_tables&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;3 ms&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;No log output captured.&#34;}], &#34;tests/test_database.py::test_tc57_passwords_are_hashed_not_plaintext&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Passed&#34;, &#34;testId&#34;: &#34;tests/test_database.py::test_tc57_passwords_are_hashed_not_plaintext&#34;, &#34;duration&#34;: &#34;9 ms&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Passed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_database.py::test_tc57_passwords_are_hashed_not_plaintext&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;9 ms&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;No log output captured.&#34;}], &#34;tests/test_database.py::test_tc58_no_orphan_projects&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Passed&#34;, &#34;testId&#34;: &#34;tests/test_database.py::test_tc58_no_orphan_projects&#34;, &#34;duration&#34;: &#34;14 ms&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Passed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_database.py::test_tc58_no_orphan_projects&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;14 ms&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;No log output captured.&#34;}], &#34;tests/test_database.py::test_tc59_each_org_has_exactly_one_owner&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Failed&#34;, &#34;testId&#34;: &#34;tests/test_database.py::test_tc59_each_org_has_exactly_one_owner&#34;, &#34;duration&#34;: &#34;7 ms&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Failed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_database.py::test_tc59_each_org_has_exactly_one_owner&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;7 ms&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;def test_tc59_each_org_has_exactly_one_owner():\n        conn = get_db()\n        cursor = conn.cursor()\n        cursor.execute(&amp;quot;&amp;quot;&amp;quot;\n            SELECT org_id, COUNT(*) as owner_count\n            FROM Memberships\n            WHERE role = &amp;#x27;OWNER&amp;#x27;\n            GROUP BY org_id\n        &amp;quot;&amp;quot;&amp;quot;)\n        rows = cursor.fetchall()\n        conn.close()\n        bad = [dict(r) for r in rows if r[&amp;quot;owner_count&amp;quot;] != 1]\n&amp;gt;       assert not bad, f&amp;quot;BUG-11: orgs with more/less than 1 owner: {bad}&amp;quot;\nE       AssertionError: BUG-11: orgs with more/less than 1 owner: [{&amp;#x27;org_id&amp;#x27;: 2, &amp;#x27;owner_count&amp;#x27;: 3}]\nE       assert not [{&amp;#x27;org_id&amp;#x27;: 2, &amp;#x27;owner_count&amp;#x27;: 3}]\n\ntests\\test_database.py:63: AssertionError\n&#34;}], &#34;tests/test_database.py::test_tc60_task_assignee_belongs_to_same_org_as_project&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Failed&#34;, &#34;testId&#34;: &#34;tests/test_database.py::test_tc60_task_assignee_belongs_to_same_org_as_project&#34;, &#34;duration&#34;: &#34;3 ms&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Failed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_database.py::test_tc60_task_assignee_belongs_to_same_org_as_project&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;3 ms&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;def test_tc60_task_assignee_belongs_to_same_org_as_project():\n        conn = get_db()\n        cursor = conn.cursor()\n        cursor.execute(&amp;quot;&amp;quot;&amp;quot;\n            SELECT t.task_id, t.assignee_id, p.org_id AS project_org\n            FROM Tasks t\n            JOIN Projects p ON t.project_id = p.project_id\n            LEFT JOIN Memberships m\n                ON t.assignee_id = m.user_id AND m.org_id = p.org_id\n            WHERE t.assignee_id IS NOT NULL AND m.membership_id IS NULL\n        &amp;quot;&amp;quot;&amp;quot;)\n        bad = cursor.fetchall()\n        conn.close()\n&amp;gt;       assert not bad, f&amp;quot;BUG-05: tasks assigned to users outside the project&amp;#x27;s org: {[dict(r) for r in bad]}&amp;quot;\nE       AssertionError: BUG-05: tasks assigned to users outside the project&amp;#x27;s org: [{&amp;#x27;task_id&amp;#x27;: 8, &amp;#x27;assignee_id&amp;#x27;: 3, &amp;#x27;project_org&amp;#x27;: 1}, {&amp;#x27;task_id&amp;#x27;: 11, &amp;#x27;assignee_id&amp;#x27;: 3, &amp;#x27;project_org&amp;#x27;: 1}]\nE       assert not [&amp;lt;sqlite3.Row object at 0x0000025BE56A7940&amp;gt;, &amp;lt;sqlite3.Row object at 0x0000025BE56A7700&amp;gt;]\n\ntests\\test_database.py:79: AssertionError\n&#34;}], &#34;tests/test_database.py::test_tc61_free_plan_project_limit_at_db_level&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Passed&#34;, &#34;testId&#34;: &#34;tests/test_database.py::test_tc61_free_plan_project_limit_at_db_level&#34;, &#34;duration&#34;: &#34;3 ms&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Passed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_database.py::test_tc61_free_plan_project_limit_at_db_level&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;3 ms&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;No log output captured.&#34;}], &#34;tests/test_database.py::test_tc62_no_duplicate_user_emails&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Passed&#34;, &#34;testId&#34;: &#34;tests/test_database.py::test_tc62_no_duplicate_user_emails&#34;, &#34;duration&#34;: &#34;4 ms&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Passed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_database.py::test_tc62_no_duplicate_user_emails&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;4 ms&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;No log output captured.&#34;}], &#34;tests/test_database.py::test_tc63_invoice_amounts_non_negative&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Passed&#34;, &#34;testId&#34;: &#34;tests/test_database.py::test_tc63_invoice_amounts_non_negative&#34;, &#34;duration&#34;: &#34;4 ms&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Passed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_database.py::test_tc63_invoice_amounts_non_negative&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;4 ms&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;No log output captured.&#34;}], &#34;tests/test_database.py::test_tc64_no_orphan_memberships&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Passed&#34;, &#34;testId&#34;: &#34;tests/test_database.py::test_tc64_no_orphan_memberships&#34;, &#34;duration&#34;: &#34;6 ms&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Passed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_database.py::test_tc64_no_orphan_memberships&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;6 ms&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;No log output captured.&#34;}], &#34;tests/test_multi_tenancy.py::test_control_acme_can_read_own_projects&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Passed&#34;, &#34;testId&#34;: &#34;tests/test_multi_tenancy.py::test_control_acme_can_read_own_projects&#34;, &#34;duration&#34;: &#34;17 ms&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Passed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_multi_tenancy.py::test_control_acme_can_read_own_projects&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;17 ms&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;No log output captured.&#34;}], &#34;tests/test_multi_tenancy.py::test_tc35_cannot_view_other_orgs_projects&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Failed&#34;, &#34;testId&#34;: &#34;tests/test_multi_tenancy.py::test_tc35_cannot_view_other_orgs_projects&#34;, &#34;duration&#34;: &#34;9 ms&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Failed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_multi_tenancy.py::test_tc35_cannot_view_other_orgs_projects&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;9 ms&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;acme_owner = {&amp;#x27;email&amp;#x27;: &amp;#x27;owner@acme.test&amp;#x27;, &amp;#x27;user_id&amp;#x27;: 1, &amp;#x27;headers&amp;#x27;: {&amp;#x27;Authorization&amp;#x27;: &amp;#x27;Bearer dXNlcjox&amp;#x27;}, &amp;#x27;org_id&amp;#x27;: 1, ...}\nglobex_owner = {&amp;#x27;email&amp;#x27;: &amp;#x27;owner@globex.test&amp;#x27;, &amp;#x27;user_id&amp;#x27;: 3, &amp;#x27;headers&amp;#x27;: {&amp;#x27;Authorization&amp;#x27;: &amp;#x27;Bearer dXNlcjoz&amp;#x27;}, &amp;#x27;org_id&amp;#x27;: 2, ...}\n\n    def test_tc35_cannot_view_other_orgs_projects(acme_owner, globex_owner):\n        &amp;quot;&amp;quot;&amp;quot;MT-01: Acme user reads Globex&amp;#x27;s project list.&amp;quot;&amp;quot;&amp;quot;\n        resp = get(acme_owner, f&amp;quot;/orgs/{globex_owner[&amp;#x27;org_id&amp;#x27;]}/projects&amp;quot;)\n&amp;gt;       assert resp.status_code in BLOCKED, (\n            f&amp;quot;BUG-01: Acme user got HTTP {resp.status_code} for Globex projects (expected 403)&amp;quot;\n        )\nE       AssertionError: BUG-01: Acme user got HTTP 200 for Globex projects (expected 403)\nE       assert 200 in (401, 403)\nE        +  where 200 = &amp;lt;Response [200]&amp;gt;.status_code\n\ntests\\test_multi_tenancy.py:28: AssertionError\n&#34;}], &#34;tests/test_multi_tenancy.py::test_tc36_cannot_view_other_orgs_tasks&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Failed&#34;, &#34;testId&#34;: &#34;tests/test_multi_tenancy.py::test_tc36_cannot_view_other_orgs_tasks&#34;, &#34;duration&#34;: &#34;10 ms&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Failed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_multi_tenancy.py::test_tc36_cannot_view_other_orgs_tasks&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;10 ms&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;acme_owner = {&amp;#x27;email&amp;#x27;: &amp;#x27;owner@acme.test&amp;#x27;, &amp;#x27;user_id&amp;#x27;: 1, &amp;#x27;headers&amp;#x27;: {&amp;#x27;Authorization&amp;#x27;: &amp;#x27;Bearer dXNlcjox&amp;#x27;}, &amp;#x27;org_id&amp;#x27;: 1, ...}\nglobex_owner = {&amp;#x27;email&amp;#x27;: &amp;#x27;owner@globex.test&amp;#x27;, &amp;#x27;user_id&amp;#x27;: 3, &amp;#x27;headers&amp;#x27;: {&amp;#x27;Authorization&amp;#x27;: &amp;#x27;Bearer dXNlcjoz&amp;#x27;}, &amp;#x27;org_id&amp;#x27;: 2, ...}\nglobex_project_id = 3\n\n    def test_tc36_cannot_view_other_orgs_tasks(acme_owner, globex_owner, globex_project_id):\n        &amp;quot;&amp;quot;&amp;quot;MT-02: Acme user reads the tasks of a Globex project.&amp;quot;&amp;quot;&amp;quot;\n        resp = get(acme_owner, f&amp;quot;/orgs/{globex_owner[&amp;#x27;org_id&amp;#x27;]}/projects/{globex_project_id}/tasks&amp;quot;)\n&amp;gt;       assert resp.status_code in BLOCKED, (\n            f&amp;quot;BUG-01: Acme user got HTTP {resp.status_code} for Globex tasks (expected 403)&amp;quot;\n        )\nE       AssertionError: BUG-01: Acme user got HTTP 200 for Globex tasks (expected 403)\nE       assert 200 in (401, 403)\nE        +  where 200 = &amp;lt;Response [200]&amp;gt;.status_code\n\ntests\\test_multi_tenancy.py:36: AssertionError\n&#34;}], &#34;tests/test_multi_tenancy.py::test_tc37_cannot_view_other_orgs_members&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Failed&#34;, &#34;testId&#34;: &#34;tests/test_multi_tenancy.py::test_tc37_cannot_view_other_orgs_members&#34;, &#34;duration&#34;: &#34;12 ms&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Failed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_multi_tenancy.py::test_tc37_cannot_view_other_orgs_members&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;12 ms&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;acme_owner = {&amp;#x27;email&amp;#x27;: &amp;#x27;owner@acme.test&amp;#x27;, &amp;#x27;user_id&amp;#x27;: 1, &amp;#x27;headers&amp;#x27;: {&amp;#x27;Authorization&amp;#x27;: &amp;#x27;Bearer dXNlcjox&amp;#x27;}, &amp;#x27;org_id&amp;#x27;: 1, ...}\nglobex_owner = {&amp;#x27;email&amp;#x27;: &amp;#x27;owner@globex.test&amp;#x27;, &amp;#x27;user_id&amp;#x27;: 3, &amp;#x27;headers&amp;#x27;: {&amp;#x27;Authorization&amp;#x27;: &amp;#x27;Bearer dXNlcjoz&amp;#x27;}, &amp;#x27;org_id&amp;#x27;: 2, ...}\n\n    def test_tc37_cannot_view_other_orgs_members(acme_owner, globex_owner):\n        &amp;quot;&amp;quot;&amp;quot;MT-03: Acme user reads Globex&amp;#x27;s member list.&amp;quot;&amp;quot;&amp;quot;\n        resp = get(acme_owner, f&amp;quot;/orgs/{globex_owner[&amp;#x27;org_id&amp;#x27;]}/members&amp;quot;)\n&amp;gt;       assert resp.status_code in BLOCKED, (\n            f&amp;quot;BUG-01: Acme user got HTTP {resp.status_code} for Globex members (expected 403)&amp;quot;\n        )\nE       AssertionError: BUG-01: Acme user got HTTP 200 for Globex members (expected 403)\nE       assert 200 in (401, 403)\nE        +  where 200 = &amp;lt;Response [200]&amp;gt;.status_code\n\ntests\\test_multi_tenancy.py:44: AssertionError\n&#34;}], &#34;tests/test_multi_tenancy.py::test_tc38_cannot_view_other_orgs_subscription&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Failed&#34;, &#34;testId&#34;: &#34;tests/test_multi_tenancy.py::test_tc38_cannot_view_other_orgs_subscription&#34;, &#34;duration&#34;: &#34;13 ms&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Failed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_multi_tenancy.py::test_tc38_cannot_view_other_orgs_subscription&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;13 ms&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;acme_owner = {&amp;#x27;email&amp;#x27;: &amp;#x27;owner@acme.test&amp;#x27;, &amp;#x27;user_id&amp;#x27;: 1, &amp;#x27;headers&amp;#x27;: {&amp;#x27;Authorization&amp;#x27;: &amp;#x27;Bearer dXNlcjox&amp;#x27;}, &amp;#x27;org_id&amp;#x27;: 1, ...}\nglobex_owner = {&amp;#x27;email&amp;#x27;: &amp;#x27;owner@globex.test&amp;#x27;, &amp;#x27;user_id&amp;#x27;: 3, &amp;#x27;headers&amp;#x27;: {&amp;#x27;Authorization&amp;#x27;: &amp;#x27;Bearer dXNlcjoz&amp;#x27;}, &amp;#x27;org_id&amp;#x27;: 2, ...}\n\n    def test_tc38_cannot_view_other_orgs_subscription(acme_owner, globex_owner):\n        &amp;quot;&amp;quot;&amp;quot;MT-04: Acme user reads Globex&amp;#x27;s subscription/plan.&amp;quot;&amp;quot;&amp;quot;\n        resp = get(acme_owner, f&amp;quot;/orgs/{globex_owner[&amp;#x27;org_id&amp;#x27;]}/subscription&amp;quot;)\n&amp;gt;       assert resp.status_code in BLOCKED, (\n            f&amp;quot;BUG-01: Acme user got HTTP {resp.status_code} for Globex subscription (expected 403)&amp;quot;\n        )\nE       AssertionError: BUG-01: Acme user got HTTP 200 for Globex subscription (expected 403)\nE       assert 200 in (401, 403)\nE        +  where 200 = &amp;lt;Response [200]&amp;gt;.status_code\n\ntests\\test_multi_tenancy.py:52: AssertionError\n&#34;}], &#34;tests/test_multi_tenancy.py::test_tc39_cannot_view_other_orgs_invoices&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Failed&#34;, &#34;testId&#34;: &#34;tests/test_multi_tenancy.py::test_tc39_cannot_view_other_orgs_invoices&#34;, &#34;duration&#34;: &#34;13 ms&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Failed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_multi_tenancy.py::test_tc39_cannot_view_other_orgs_invoices&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;13 ms&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;acme_owner = {&amp;#x27;email&amp;#x27;: &amp;#x27;owner@acme.test&amp;#x27;, &amp;#x27;user_id&amp;#x27;: 1, &amp;#x27;headers&amp;#x27;: {&amp;#x27;Authorization&amp;#x27;: &amp;#x27;Bearer dXNlcjox&amp;#x27;}, &amp;#x27;org_id&amp;#x27;: 1, ...}\nglobex_owner = {&amp;#x27;email&amp;#x27;: &amp;#x27;owner@globex.test&amp;#x27;, &amp;#x27;user_id&amp;#x27;: 3, &amp;#x27;headers&amp;#x27;: {&amp;#x27;Authorization&amp;#x27;: &amp;#x27;Bearer dXNlcjoz&amp;#x27;}, &amp;#x27;org_id&amp;#x27;: 2, ...}\n\n    def test_tc39_cannot_view_other_orgs_invoices(acme_owner, globex_owner):\n        &amp;quot;&amp;quot;&amp;quot;MT-05: Acme user reads Globex&amp;#x27;s invoices.&amp;quot;&amp;quot;&amp;quot;\n        resp = get(acme_owner, f&amp;quot;/orgs/{globex_owner[&amp;#x27;org_id&amp;#x27;]}/invoices&amp;quot;)\n&amp;gt;       assert resp.status_code in BLOCKED, (\n            f&amp;quot;BUG-01: Acme user got HTTP {resp.status_code} for Globex invoices (expected 403)&amp;quot;\n        )\nE       AssertionError: BUG-01: Acme user got HTTP 200 for Globex invoices (expected 403)\nE       assert 200 in (401, 403)\nE        +  where 200 = &amp;lt;Response [200]&amp;gt;.status_code\n\ntests\\test_multi_tenancy.py:60: AssertionError\n&#34;}], &#34;tests/test_multi_tenancy.py::test_tc40_cannot_create_project_in_other_org&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Passed&#34;, &#34;testId&#34;: &#34;tests/test_multi_tenancy.py::test_tc40_cannot_create_project_in_other_org&#34;, &#34;duration&#34;: &#34;12 ms&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Passed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_multi_tenancy.py::test_tc40_cannot_create_project_in_other_org&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;12 ms&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;No log output captured.&#34;}], &#34;tests/test_multi_tenancy.py::test_tc41_cannot_assign_task_to_user_from_other_org&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Failed&#34;, &#34;testId&#34;: &#34;tests/test_multi_tenancy.py::test_tc41_cannot_assign_task_to_user_from_other_org&#34;, &#34;duration&#34;: &#34;34 ms&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Failed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_multi_tenancy.py::test_tc41_cannot_assign_task_to_user_from_other_org&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;34 ms&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;acme_owner = {&amp;#x27;email&amp;#x27;: &amp;#x27;owner@acme.test&amp;#x27;, &amp;#x27;user_id&amp;#x27;: 1, &amp;#x27;headers&amp;#x27;: {&amp;#x27;Authorization&amp;#x27;: &amp;#x27;Bearer dXNlcjox&amp;#x27;}, &amp;#x27;org_id&amp;#x27;: 1, ...}\nglobex_owner = {&amp;#x27;email&amp;#x27;: &amp;#x27;owner@globex.test&amp;#x27;, &amp;#x27;user_id&amp;#x27;: 3, &amp;#x27;headers&amp;#x27;: {&amp;#x27;Authorization&amp;#x27;: &amp;#x27;Bearer dXNlcjoz&amp;#x27;}, &amp;#x27;org_id&amp;#x27;: 2, ...}\nacme_project_id = 2\n\n    def test_tc41_cannot_assign_task_to_user_from_other_org(acme_owner, globex_owner, acme_project_id):\n        &amp;quot;&amp;quot;&amp;quot;MT-07: Acme task assigned to a Globex user.&amp;quot;&amp;quot;&amp;quot;\n        resp = requests.post(\n            f&amp;quot;{BASE_URL}/orgs/{acme_owner[&amp;#x27;org_id&amp;#x27;]}/projects/{acme_project_id}/tasks&amp;quot;,\n            headers=acme_owner[&amp;quot;headers&amp;quot;],\n            json={&amp;quot;title&amp;quot;: &amp;quot;Cross-org assignee test&amp;quot;, &amp;quot;assigneeId&amp;quot;: globex_owner[&amp;quot;user_id&amp;quot;]},\n            timeout=TIMEOUT,\n        )\n&amp;gt;       assert resp.status_code in (400, 403, 404, 422), (\n            f&amp;quot;BUG-05: task was assigned to a user of another org (HTTP {resp.status_code}, expected 400/403)&amp;quot;\n        )\nE       AssertionError: BUG-05: task was assigned to a user of another org (HTTP 201, expected 400/403)\nE       assert 201 in (400, 403, 404, 422)\nE        +  where 201 = &amp;lt;Response [201]&amp;gt;.status_code\n\ntests\\test_multi_tenancy.py:86: AssertionError\n&#34;}], &#34;tests/test_multi_tenancy.py::test_tc42_org_list_shows_only_own_orgs&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Passed&#34;, &#34;testId&#34;: &#34;tests/test_multi_tenancy.py::test_tc42_org_list_shows_only_own_orgs&#34;, &#34;duration&#34;: &#34;7 ms&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Passed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_multi_tenancy.py::test_tc42_org_list_shows_only_own_orgs&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;7 ms&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;No log output captured.&#34;}], &#34;tests/test_rbac.py::test_tc29_member_cannot_invite_owner&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Failed&#34;, &#34;testId&#34;: &#34;tests/test_rbac.py::test_tc29_member_cannot_invite_owner&#34;, &#34;duration&#34;: &#34;201 ms&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Failed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_rbac.py::test_tc29_member_cannot_invite_owner&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;201 ms&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;globex_member = {&amp;#x27;email&amp;#x27;: &amp;#x27;member@globex.test&amp;#x27;, &amp;#x27;user_id&amp;#x27;: 4, &amp;#x27;headers&amp;#x27;: {&amp;#x27;Authorization&amp;#x27;: &amp;#x27;Bearer dXNlcjo0&amp;#x27;}, &amp;#x27;org_id&amp;#x27;: 2, ...}\n\n    def test_tc29_member_cannot_invite_owner(globex_member):\n        &amp;quot;&amp;quot;&amp;quot;RBAC-01: a plain MEMBER must not be able to invite someone as OWNER.&amp;quot;&amp;quot;&amp;quot;\n        resp, _ = invite(globex_member, globex_member[&amp;quot;org_id&amp;quot;], &amp;quot;OWNER&amp;quot;)\n&amp;gt;       assert resp.status_code in BLOCKED, (\n            f&amp;quot;BUG-02: MEMBER invited an OWNER (HTTP {resp.status_code}, expected 403)&amp;quot;\n        )\nE       AssertionError: BUG-02: MEMBER invited an OWNER (HTTP 201, expected 403)\nE       assert 201 in (401, 403)\nE        +  where 201 = &amp;lt;Response [201]&amp;gt;.status_code\n\ntests\\test_rbac.py:15: AssertionError\n&#34;}], &#34;tests/test_rbac.py::test_tc30_member_cannot_invite_admin&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Failed&#34;, &#34;testId&#34;: &#34;tests/test_rbac.py::test_tc30_member_cannot_invite_admin&#34;, &#34;duration&#34;: &#34;147 ms&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Failed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_rbac.py::test_tc30_member_cannot_invite_admin&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;147 ms&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;globex_member = {&amp;#x27;email&amp;#x27;: &amp;#x27;member@globex.test&amp;#x27;, &amp;#x27;user_id&amp;#x27;: 4, &amp;#x27;headers&amp;#x27;: {&amp;#x27;Authorization&amp;#x27;: &amp;#x27;Bearer dXNlcjo0&amp;#x27;}, &amp;#x27;org_id&amp;#x27;: 2, ...}\n\n    def test_tc30_member_cannot_invite_admin(globex_member):\n        &amp;quot;&amp;quot;&amp;quot;RBAC-02: a plain MEMBER must not be able to invite someone as ADMIN.&amp;quot;&amp;quot;&amp;quot;\n        resp, _ = invite(globex_member, globex_member[&amp;quot;org_id&amp;quot;], &amp;quot;ADMIN&amp;quot;)\n&amp;gt;       assert resp.status_code in BLOCKED, (\n            f&amp;quot;BUG-02: MEMBER invited an ADMIN (HTTP {resp.status_code}, expected 403)&amp;quot;\n        )\nE       AssertionError: BUG-02: MEMBER invited an ADMIN (HTTP 201, expected 403)\nE       assert 201 in (401, 403)\nE        +  where 201 = &amp;lt;Response [201]&amp;gt;.status_code\n\ntests\\test_rbac.py:23: AssertionError\n&#34;}], &#34;tests/test_rbac.py::test_tc31_member_cannot_promote_self_to_owner&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Failed&#34;, &#34;testId&#34;: &#34;tests/test_rbac.py::test_tc31_member_cannot_promote_self_to_owner&#34;, &#34;duration&#34;: &#34;37 ms&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Failed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_rbac.py::test_tc31_member_cannot_promote_self_to_owner&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;37 ms&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;globex_member = {&amp;#x27;email&amp;#x27;: &amp;#x27;member@globex.test&amp;#x27;, &amp;#x27;user_id&amp;#x27;: 4, &amp;#x27;headers&amp;#x27;: {&amp;#x27;Authorization&amp;#x27;: &amp;#x27;Bearer dXNlcjo0&amp;#x27;}, &amp;#x27;org_id&amp;#x27;: 2, ...}\nglobex_owner = {&amp;#x27;email&amp;#x27;: &amp;#x27;owner@globex.test&amp;#x27;, &amp;#x27;user_id&amp;#x27;: 3, &amp;#x27;headers&amp;#x27;: {&amp;#x27;Authorization&amp;#x27;: &amp;#x27;Bearer dXNlcjoz&amp;#x27;}, &amp;#x27;org_id&amp;#x27;: 2, ...}\n\n    def test_tc31_member_cannot_promote_self_to_owner(globex_member, globex_owner):\n        &amp;quot;&amp;quot;&amp;quot;RBAC-03: a MEMBER must not be able to make themselves OWNER.&amp;quot;&amp;quot;&amp;quot;\n        org_id = globex_member[&amp;quot;org_id&amp;quot;]\n        resp = change_role(globex_member, org_id, globex_member[&amp;quot;user_id&amp;quot;], &amp;quot;OWNER&amp;quot;)\n    \n        # Cleanup FIRST: if the bug exists, the member is now an OWNER and would\n        # break the other tests. The real owner puts the role back to MEMBER.\n        change_role(globex_owner, org_id, globex_member[&amp;quot;user_id&amp;quot;], &amp;quot;MEMBER&amp;quot;)\n    \n&amp;gt;       assert resp.status_code in BLOCKED, (\n            f&amp;quot;BUG-03: MEMBER promoted themselves to OWNER (HTTP {resp.status_code}, expected 403)&amp;quot;\n        )\nE       AssertionError: BUG-03: MEMBER promoted themselves to OWNER (HTTP 200, expected 403)\nE       assert 200 in (401, 403)\nE        +  where 200 = &amp;lt;Response [200]&amp;gt;.status_code\n\ntests\\test_rbac.py:37: AssertionError\n&#34;}], &#34;tests/test_rbac.py::test_tc32_member_cannot_change_another_members_role&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Failed&#34;, &#34;testId&#34;: &#34;tests/test_rbac.py::test_tc32_member_cannot_change_another_members_role&#34;, &#34;duration&#34;: &#34;138 ms&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Failed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_rbac.py::test_tc32_member_cannot_change_another_members_role&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;138 ms&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;globex_member = {&amp;#x27;email&amp;#x27;: &amp;#x27;member@globex.test&amp;#x27;, &amp;#x27;user_id&amp;#x27;: 4, &amp;#x27;headers&amp;#x27;: {&amp;#x27;Authorization&amp;#x27;: &amp;#x27;Bearer dXNlcjo0&amp;#x27;}, &amp;#x27;org_id&amp;#x27;: 2, ...}\nglobex_owner = {&amp;#x27;email&amp;#x27;: &amp;#x27;owner@globex.test&amp;#x27;, &amp;#x27;user_id&amp;#x27;: 3, &amp;#x27;headers&amp;#x27;: {&amp;#x27;Authorization&amp;#x27;: &amp;#x27;Bearer dXNlcjoz&amp;#x27;}, &amp;#x27;org_id&amp;#x27;: 2, ...}\n\n    def test_tc32_member_cannot_change_another_members_role(globex_member, globex_owner):\n        &amp;quot;&amp;quot;&amp;quot;RBAC-04: a MEMBER must not be able to change someone else&amp;#x27;s role.&amp;quot;&amp;quot;&amp;quot;\n        org_id = globex_member[&amp;quot;org_id&amp;quot;]\n    \n        # The owner creates a throwaway user for this test to target.\n        _, email = invite(globex_owner, org_id, &amp;quot;MEMBER&amp;quot;)\n        target = find_member(globex_owner, org_id, email)\n        assert target is not None, &amp;quot;Test setup failed: invited user not found in members list&amp;quot;\n    \n        resp = change_role(globex_member, org_id, target[&amp;quot;user_id&amp;quot;], &amp;quot;ADMIN&amp;quot;)\n&amp;gt;       assert resp.status_code in BLOCKED, (\n            f&amp;quot;BUG-03: MEMBER changed another user&amp;#x27;s role (HTTP {resp.status_code}, expected 403)&amp;quot;\n        )\nE       AssertionError: BUG-03: MEMBER changed another user&amp;#x27;s role (HTTP 200, expected 403)\nE       assert 200 in (401, 403)\nE        +  where 200 = &amp;lt;Response [200]&amp;gt;.status_code\n\ntests\\test_rbac.py:52: AssertionError\n&#34;}], &#34;tests/test_rbac.py::test_tc33_admin_can_invite_member&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Passed&#34;, &#34;testId&#34;: &#34;tests/test_rbac.py::test_tc33_admin_can_invite_member&#34;, &#34;duration&#34;: &#34;120 ms&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Passed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_rbac.py::test_tc33_admin_can_invite_member&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;120 ms&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;No log output captured.&#34;}], &#34;tests/test_rbac.py::test_tc34_owner_can_change_a_members_role&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Passed&#34;, &#34;testId&#34;: &#34;tests/test_rbac.py::test_tc34_owner_can_change_a_members_role&#34;, &#34;duration&#34;: &#34;125 ms&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Passed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_rbac.py::test_tc34_owner_can_change_a_members_role&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;125 ms&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;No log output captured.&#34;}], &#34;tests/test_security.py::test_tc43_forged_token_impersonates_another_user&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Failed&#34;, &#34;testId&#34;: &#34;tests/test_security.py::test_tc43_forged_token_impersonates_another_user&#34;, &#34;duration&#34;: &#34;7 ms&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Failed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_security.py::test_tc43_forged_token_impersonates_another_user&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;7 ms&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;def test_tc43_forged_token_impersonates_another_user():\n        &amp;quot;&amp;quot;&amp;quot;SEC-01: token is just base64(&amp;quot;user:&amp;lt;id&amp;gt;&amp;quot;) - anyone can forge it.&amp;quot;&amp;quot;&amp;quot;\n        fake_token = base64.b64encode(b&amp;quot;user:1&amp;quot;).decode()  # pretend to be user_id 1\n        headers = {&amp;quot;Authorization&amp;quot;: f&amp;quot;Bearer {fake_token}&amp;quot;}\n        resp = requests.get(f&amp;quot;{BASE_URL}/orgs/1/projects&amp;quot;, headers=headers, timeout=TIMEOUT)\n&amp;gt;       assert resp.status_code in (401, 403), (\n            f&amp;quot;BUG-06: forged token worked (HTTP {resp.status_code}) - token is not signed/verified&amp;quot;\n        )\nE       AssertionError: BUG-06: forged token worked (HTTP 200) - token is not signed/verified\nE       assert 200 in (401, 403)\nE        +  where 200 = &amp;lt;Response [200]&amp;gt;.status_code\n\ntests\\test_security.py:19: AssertionError\n&#34;}], &#34;tests/test_security.py::test_tc44_no_login_no_access&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Passed&#34;, &#34;testId&#34;: &#34;tests/test_security.py::test_tc44_no_login_no_access&#34;, &#34;duration&#34;: &#34;10 ms&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Passed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_security.py::test_tc44_no_login_no_access&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;10 ms&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;No log output captured.&#34;}], &#34;tests/test_security.py::test_tc45_sql_injection_in_login_email&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Passed&#34;, &#34;testId&#34;: &#34;tests/test_security.py::test_tc45_sql_injection_in_login_email&#34;, &#34;duration&#34;: &#34;8 ms&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Passed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_security.py::test_tc45_sql_injection_in_login_email&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;8 ms&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;No log output captured.&#34;}], &#34;tests/test_security.py::test_tc46_malformed_login_body_no_stack_trace&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Failed&#34;, &#34;testId&#34;: &#34;tests/test_security.py::test_tc46_malformed_login_body_no_stack_trace&#34;, &#34;duration&#34;: &#34;33 ms&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Failed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_security.py::test_tc46_malformed_login_body_no_stack_trace&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;33 ms&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;def test_tc46_malformed_login_body_no_stack_trace():\n        &amp;quot;&amp;quot;&amp;quot;SEC-04: sending garbage must not leak an internal error/stack trace.&amp;quot;&amp;quot;&amp;quot;\n        resp = requests.post(\n            f&amp;quot;{BASE_URL}/auth/login&amp;quot;,\n            data=&amp;quot;not-json-at-all&amp;quot;,\n            headers={&amp;quot;Content-Type&amp;quot;: &amp;quot;application/json&amp;quot;},\n            timeout=TIMEOUT,\n        )\n        assert resp.status_code in (400, 401, 415), (\n            f&amp;quot;Unexpected status for malformed body: {resp.status_code}&amp;quot;\n        )\n        lowered = resp.text.lower()\n&amp;gt;       assert &amp;quot;at object.&amp;quot; not in lowered and &amp;quot;node_modules&amp;quot; not in lowered, (\n            &amp;quot;BUG-08: raw stack trace leaked in the error response&amp;quot;\n        )\nE       AssertionError: BUG-08: raw stack trace leaked in the error response\nE       assert (&amp;#x27;at object.&amp;#x27; not in &amp;#x27;&amp;lt;!doctype h...&amp;gt;\\n&amp;lt;/html&amp;gt;\\n&amp;#x27;\nE         \nE         &amp;#x27;at object.&amp;#x27; is contained here:\nE           &amp;lt;!doctype html&amp;gt;\nE           &amp;lt;html lang=&amp;quot;en&amp;quot;&amp;gt;\nE           &amp;lt;head&amp;gt;\nE           &amp;lt;meta charset=&amp;quot;utf-8&amp;quot;&amp;gt;\nE           &amp;lt;title&amp;gt;error&amp;lt;/title&amp;gt;...\nE         \nE         ...Full output truncated (5 lines hidden), use &amp;#x27;-vv&amp;#x27; to show and &amp;#x27;node_modules&amp;#x27; not in &amp;#x27;&amp;lt;!doctype h...&amp;gt;\\n&amp;lt;/html&amp;gt;\\n&amp;#x27;\nE         \nE         &amp;#x27;node_modules&amp;#x27; is contained here:\nE           &amp;lt;!doctype html&amp;gt;\nE           &amp;lt;html lang=&amp;quot;en&amp;quot;&amp;gt;\nE           &amp;lt;head&amp;gt;\nE           &amp;lt;meta charset=&amp;quot;utf-8&amp;quot;&amp;gt;\nE           &amp;lt;title&amp;gt;error&amp;lt;/title&amp;gt;...\nE         \nE         ...Full output truncated (6 lines hidden), use &amp;#x27;-vv&amp;#x27; to show)\n\ntests\\test_security.py:54: AssertionError\n&#34;}], &#34;tests/test_security.py::test_tc100_login_is_rate_limited_after_repeated_failures&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Failed&#34;, &#34;testId&#34;: &#34;tests/test_security.py::test_tc100_login_is_rate_limited_after_repeated_failures&#34;, &#34;duration&#34;: &#34;00:00:03&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Failed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_security.py::test_tc100_login_is_rate_limited_after_repeated_failures&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;00:00:03&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;def test_tc100_login_is_rate_limited_after_repeated_failures():\n        &amp;quot;&amp;quot;&amp;quot;SEC-01: many wrong passwords in a row must trigger a lockout / rate limit.&amp;quot;&amp;quot;&amp;quot;\n        user = signup_fresh_org(&amp;quot;brute&amp;quot;)\n        statuses = [post_login(user[&amp;quot;email&amp;quot;], &amp;quot;wrong-password&amp;quot;).status_code for _ in range(30)]\n    \n&amp;gt;       assert any(code in (423, 429) for code in statuses), (\n            f&amp;quot;BUG-08: 30 wrong-password attempts in a row were never blocked &amp;quot;\n            f&amp;quot;(status codes seen: {sorted(set(statuses))}, expected 429 or 423 at some point)&amp;quot;\n        )\nE       AssertionError: BUG-08: 30 wrong-password attempts in a row were never blocked (status codes seen: [401], expected 429 or 423 at some point)\nE       assert False\nE        +  where False = any(&amp;lt;generator object test_tc100_login_is_rate_limited_after_repeated_failures.&amp;lt;locals&amp;gt;.&amp;lt;genexpr&amp;gt; at 0x0000025BE5A46A80&amp;gt;)\n\ntests\\test_security.py:63: AssertionError\n&#34;}], &#34;tests/test_security_extra.py::test_tc66_xss_payload_in_project_name_does_not_crash&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Passed&#34;, &#34;testId&#34;: &#34;tests/test_security_extra.py::test_tc66_xss_payload_in_project_name_does_not_crash&#34;, &#34;duration&#34;: &#34;27 ms&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Passed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_security_extra.py::test_tc66_xss_payload_in_project_name_does_not_crash&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;27 ms&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;No log output captured.&#34;}], &#34;tests/test_security_extra.py::test_tc67_password_hash_never_exposed_in_members_list&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Passed&#34;, &#34;testId&#34;: &#34;tests/test_security_extra.py::test_tc67_password_hash_never_exposed_in_members_list&#34;, &#34;duration&#34;: &#34;7 ms&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Passed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_security_extra.py::test_tc67_password_hash_never_exposed_in_members_list&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;7 ms&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;No log output captured.&#34;}], &#34;tests/test_security_extra.py::test_tc68_no_account_lockout_after_repeated_failed_logins&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Passed&#34;, &#34;testId&#34;: &#34;tests/test_security_extra.py::test_tc68_no_account_lockout_after_repeated_failed_logins&#34;, &#34;duration&#34;: &#34;657 ms&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Passed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_security_extra.py::test_tc68_no_account_lockout_after_repeated_failed_logins&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;657 ms&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;----------------------------- Captured stdout call -----------------------------\nStatus after 8 failed attempts then correct password: 200\nOBSERVATION: no lockout/rate-limit after repeated failed logins (brute-force risk)\n&#34;}], &#34;tests/test_security_extra.py::test_tc69_security_headers_present&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Failed&#34;, &#34;testId&#34;: &#34;tests/test_security_extra.py::test_tc69_security_headers_present&#34;, &#34;duration&#34;: &#34;286 ms&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Failed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_security_extra.py::test_tc69_security_headers_present&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;286 ms&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;def test_tc69_security_headers_present():\n        &amp;quot;&amp;quot;&amp;quot;SEC-08: basic security headers should be present.&amp;quot;&amp;quot;&amp;quot;\n        resp = requests.post(\n            f&amp;quot;{BASE_URL}/auth/login&amp;quot;,\n            json={&amp;quot;email&amp;quot;: &amp;quot;owner@acme.test&amp;quot;, &amp;quot;password&amp;quot;: PASSWORD},\n            timeout=TIMEOUT,\n        )\n        headers_lower = {k.lower() for k in resp.headers.keys()}\n        missing = [h for h in (&amp;quot;x-content-type-options&amp;quot;, &amp;quot;x-frame-options&amp;quot;) if h not in headers_lower]\n&amp;gt;       assert not missing, f&amp;quot;BUG-14: missing security headers: {missing}&amp;quot;\nE       AssertionError: BUG-14: missing security headers: [&amp;#x27;x-content-type-options&amp;#x27;, &amp;#x27;x-frame-options&amp;#x27;]\nE       assert not [&amp;#x27;x-content-type-options&amp;#x27;, &amp;#x27;x-frame-options&amp;#x27;]\n\ntests\\test_security_extra.py:58: AssertionError\n&#34;}]}, &#34;renderCollapsed&#34;: [&#34;passed&#34;], &#34;initialSort&#34;: &#34;result&#34;, &#34;title&#34;: &#34;full_report.html&#34;}"></div>
+    <script>
+      (function(){function r(e,n,t){function o(i,f){if(!n[i]){if(!e[i]){var c="function"==typeof require&&require;if(!f&&c)return c(i,!0);if(u)return u(i,!0);var a=new Error("Cannot find module '"+i+"'");throw a.code="MODULE_NOT_FOUND",a}var p=n[i]={exports:{}};e[i][0].call(p.exports,function(r){var n=e[i][1][r];return o(n||r)},p,p.exports,r,e,n,t)}return n[i].exports}for(var u="function"==typeof require&&require,i=0;i<t.length;i++)o(t[i]);return o}return r})()({1:[function(require,module,exports){
+const { getCollapsedCategory, setCollapsedIds } = require('./storage.js')
+
+class DataManager {
+    setManager(data) {
+        const collapsedCategories = [...getCollapsedCategory(data.renderCollapsed)]
+        const collapsedIds = []
+        const tests = Object.values(data.tests).flat().map((test, index) => {
+            const collapsed = collapsedCategories.includes(test.result.toLowerCase())
+            const id = `test_${index}`
+            if (collapsed) {
+                collapsedIds.push(id)
+            }
+            return {
+                ...test,
+                id,
+                collapsed,
+            }
+        })
+        const dataBlob = { ...data, tests }
+        this.data = { ...dataBlob }
+        this.renderData = { ...dataBlob }
+        setCollapsedIds(collapsedIds)
+    }
+
+    get allData() {
+        return { ...this.data }
+    }
+
+    resetRender() {
+        this.renderData = { ...this.data }
+    }
+
+    setRender(data) {
+        this.renderData.tests = [...data]
+    }
+
+    toggleCollapsedItem(id) {
+        this.renderData.tests = this.renderData.tests.map((test) =>
+            test.id === id ? { ...test, collapsed: !test.collapsed } : test,
+        )
+    }
+
+    set allCollapsed(collapsed) {
+        this.renderData = { ...this.renderData, tests: [...this.renderData.tests.map((test) => (
+            { ...test, collapsed }
+        ))] }
+    }
+
+    get testSubset() {
+        return [...this.renderData.tests]
+    }
+
+    get environment() {
+        return this.renderData.environment
+    }
+
+    get initialSort() {
+        return this.data.initialSort
+    }
+}
+
+module.exports = {
+    manager: new DataManager(),
+}
+
+},{"./storage.js":8}],2:[function(require,module,exports){
+const mediaViewer = require('./mediaviewer.js')
+const templateEnvRow = document.getElementById('template_environment_row')
+const templateResult = document.getElementById('template_results-table__tbody')
+
+function htmlToElements(html) {
+    const temp = document.createElement('template')
+    temp.innerHTML = html
+    return temp.content.childNodes
+}
+
+const find = (selector, elem) => {
+    if (!elem) {
+        elem = document
+    }
+    return elem.querySelector(selector)
+}
+
+const findAll = (selector, elem) => {
+    if (!elem) {
+        elem = document
+    }
+    return [...elem.querySelectorAll(selector)]
+}
+
+const dom = {
+    getStaticRow: (key, value) => {
+        const envRow = templateEnvRow.content.cloneNode(true)
+        const isObj = typeof value === 'object' && value !== null
+        const values = isObj ? Object.keys(value).map((k) => `${k}: ${value[k]}`) : null
+
+        const valuesElement = htmlToElements(
+            values ? `<ul>${values.map((val) => `<li>${val}</li>`).join('')}<ul>` : `<div>${value}</div>`)[0]
+        const td = findAll('td', envRow)
+        td[0].textContent = key
+        td[1].appendChild(valuesElement)
+
+        return envRow
+    },
+    getResultTBody: ({ testId, id, log, extras, resultsTableRow, tableHtml, result, collapsed }) => {
+        const resultBody = templateResult.content.cloneNode(true)
+        resultBody.querySelector('tbody').classList.add(result.toLowerCase())
+        resultBody.querySelector('tbody').id = testId
+        resultBody.querySelector('.collapsible').dataset.id = id
+
+        resultsTableRow.forEach((html) => {
+            const t = document.createElement('template')
+            t.innerHTML = html
+            resultBody.querySelector('.collapsible').appendChild(t.content)
+        })
+
+        if (log) {
+            // Wrap lines starting with "E" with span.error to color those lines red
+            const wrappedLog = log.replace(/^E.*$/gm, (match) => `<span class="error">${match}</span>`)
+            resultBody.querySelector('.log').innerHTML = wrappedLog
+        } else {
+            resultBody.querySelector('.log').remove()
+        }
+
+        if (collapsed) {
+            resultBody.querySelector('.collapsible > .col-result')?.classList.add('collapsed')
+            resultBody.querySelector('.extras-row').classList.add('hidden')
+        } else {
+            resultBody.querySelector('.collapsible > .col-result')?.classList.remove('collapsed')
+        }
+
+        const media = []
+        extras?.forEach(({ name, format_type, content }) => {
+            if (['image', 'video'].includes(format_type)) {
+                media.push({ path: content, name, format_type })
+            }
+
+            if (format_type === 'html') {
+                resultBody.querySelector('.extraHTML').insertAdjacentHTML('beforeend', `<div>${content}</div>`)
+            }
+        })
+        mediaViewer.setup(resultBody, media)
+
+        // Add custom html from the pytest_html_results_table_html hook
+        tableHtml?.forEach((item) => {
+            resultBody.querySelector('td[class="extra"]').insertAdjacentHTML('beforeend', item)
+        })
+
+        return resultBody
+    },
+}
+
+module.exports = {
+    dom,
+    htmlToElements,
+    find,
+    findAll,
+}
+
+},{"./mediaviewer.js":6}],3:[function(require,module,exports){
+const { manager } = require('./datamanager.js')
+const { doSort } = require('./sort.js')
+const storageModule = require('./storage.js')
+
+const getFilteredSubSet = (filter) =>
+    manager.allData.tests.filter(({ result }) => filter.includes(result.toLowerCase()))
+
+const doInitFilter = () => {
+    const currentFilter = storageModule.getVisible()
+    const filteredSubset = getFilteredSubSet(currentFilter)
+    manager.setRender(filteredSubset)
+}
+
+const doFilter = (type, show) => {
+    if (show) {
+        storageModule.showCategory(type)
+    } else {
+        storageModule.hideCategory(type)
+    }
+
+    const currentFilter = storageModule.getVisible()
+    const filteredSubset = getFilteredSubSet(currentFilter)
+    manager.setRender(filteredSubset)
+
+    const sortColumn = storageModule.getSort()
+    doSort(sortColumn, true)
+}
+
+module.exports = {
+    doFilter,
+    doInitFilter,
+}
+
+},{"./datamanager.js":1,"./sort.js":7,"./storage.js":8}],4:[function(require,module,exports){
+const { redraw, bindEvents, renderStatic } = require('./main.js')
+const { doInitFilter } = require('./filter.js')
+const { doInitSort } = require('./sort.js')
+const { manager } = require('./datamanager.js')
+const data = JSON.parse(document.getElementById('data-container').dataset.jsonblob)
+
+function init() {
+    manager.setManager(data)
+    doInitFilter()
+    doInitSort()
+    renderStatic()
+    redraw()
+    bindEvents()
+}
+
+init()
+
+},{"./datamanager.js":1,"./filter.js":3,"./main.js":5,"./sort.js":7}],5:[function(require,module,exports){
+const { dom, find, findAll } = require('./dom.js')
+const { manager } = require('./datamanager.js')
+const { doSort } = require('./sort.js')
+const { doFilter } = require('./filter.js')
+const {
+    getVisible,
+    getCollapsedIds,
+    setCollapsedIds,
+    getSort,
+    getSortDirection,
+    possibleFilters,
+} = require('./storage.js')
+
+const removeChildren = (node) => {
+    while (node.firstChild) {
+        node.removeChild(node.firstChild)
+    }
+}
+
+const renderStatic = () => {
+    const renderEnvironmentTable = () => {
+        const environment = manager.environment
+        const rows = Object.keys(environment).map((key) => dom.getStaticRow(key, environment[key]))
+        const table = document.getElementById('environment')
+        removeChildren(table)
+        rows.forEach((row) => table.appendChild(row))
+    }
+    renderEnvironmentTable()
+}
+
+const addItemToggleListener = (elem) => {
+    elem.addEventListener('click', ({ target }) => {
+        const id = target.parentElement.dataset.id
+        manager.toggleCollapsedItem(id)
+
+        const collapsedIds = getCollapsedIds()
+        if (collapsedIds.includes(id)) {
+            const updated = collapsedIds.filter((item) => item !== id)
+            setCollapsedIds(updated)
+        } else {
+            collapsedIds.push(id)
+            setCollapsedIds(collapsedIds)
+        }
+        redraw()
+    })
+}
+
+const renderContent = (tests) => {
+    const sortAttr = getSort(manager.initialSort)
+    const sortAsc = JSON.parse(getSortDirection())
+    const rows = tests.map(dom.getResultTBody)
+    const table = document.getElementById('results-table')
+    const tableHeader = document.getElementById('results-table-head')
+
+    const newTable = document.createElement('table')
+    newTable.id = 'results-table'
+
+    // remove all sorting classes and set the relevant
+    findAll('.sortable', tableHeader).forEach((elem) => elem.classList.remove('asc', 'desc'))
+    tableHeader.querySelector(`.sortable[data-column-type="${sortAttr}"]`)?.classList.add(sortAsc ? 'desc' : 'asc')
+    newTable.appendChild(tableHeader)
+
+    if (!rows.length) {
+        const emptyTable = document.getElementById('template_results-table__body--empty').content.cloneNode(true)
+        newTable.appendChild(emptyTable)
+    } else {
+        rows.forEach((row) => {
+            if (!!row) {
+                findAll('.collapsible td:not(.col-links', row).forEach(addItemToggleListener)
+                find('.logexpander', row).addEventListener('click',
+                    (evt) => evt.target.parentNode.classList.toggle('expanded'),
+                )
+                newTable.appendChild(row)
+            }
+        })
+    }
+
+    table.replaceWith(newTable)
+}
+
+const renderDerived = () => {
+    const currentFilter = getVisible()
+    possibleFilters.forEach((result) => {
+        const input = document.querySelector(`input[data-test-result="${result}"]`)
+        input.checked = currentFilter.includes(result)
+    })
+}
+
+const bindEvents = () => {
+    const filterColumn = (evt) => {
+        const { target: element } = evt
+        const { testResult } = element.dataset
+
+        doFilter(testResult, element.checked)
+        const collapsedIds = getCollapsedIds()
+        const updated = manager.renderData.tests.map((test) => {
+            return {
+                ...test,
+                collapsed: collapsedIds.includes(test.id),
+            }
+        })
+        manager.setRender(updated)
+        redraw()
+    }
+
+    const header = document.getElementById('environment-header')
+    header.addEventListener('click', () => {
+        const table = document.getElementById('environment')
+        table.classList.toggle('hidden')
+        header.classList.toggle('collapsed')
+    })
+
+    findAll('input[name="filter_checkbox"]').forEach((elem) => {
+        elem.addEventListener('click', filterColumn)
+    })
+
+    findAll('.sortable').forEach((elem) => {
+        elem.addEventListener('click', (evt) => {
+            const { target: element } = evt
+            const { columnType } = element.dataset
+            doSort(columnType)
+            redraw()
+        })
+    })
+
+    document.getElementById('show_all_details').addEventListener('click', () => {
+        manager.allCollapsed = false
+        setCollapsedIds([])
+        redraw()
+    })
+    document.getElementById('hide_all_details').addEventListener('click', () => {
+        manager.allCollapsed = true
+        const allIds = manager.renderData.tests.map((test) => test.id)
+        setCollapsedIds(allIds)
+        redraw()
+    })
+}
+
+const redraw = () => {
+    const { testSubset } = manager
+
+    renderContent(testSubset)
+    renderDerived()
+}
+
+module.exports = {
+    redraw,
+    bindEvents,
+    renderStatic,
+}
+
+},{"./datamanager.js":1,"./dom.js":2,"./filter.js":3,"./sort.js":7,"./storage.js":8}],6:[function(require,module,exports){
+class MediaViewer {
+    constructor(assets) {
+        this.assets = assets
+        this.index = 0
+    }
+
+    nextActive() {
+        this.index = this.index === this.assets.length - 1 ? 0 : this.index + 1
+        return [this.activeFile, this.index]
+    }
+
+    prevActive() {
+        this.index = this.index === 0 ? this.assets.length - 1 : this.index -1
+        return [this.activeFile, this.index]
+    }
+
+    get currentIndex() {
+        return this.index
+    }
+
+    get activeFile() {
+        return this.assets[this.index]
+    }
+}
+
+
+const setup = (resultBody, assets) => {
+    if (!assets.length) {
+        resultBody.querySelector('.media').classList.add('hidden')
+        return
+    }
+
+    const mediaViewer = new MediaViewer(assets)
+    const container = resultBody.querySelector('.media-container')
+    const leftArrow = resultBody.querySelector('.media-container__nav--left')
+    const rightArrow = resultBody.querySelector('.media-container__nav--right')
+    const mediaName = resultBody.querySelector('.media__name')
+    const counter = resultBody.querySelector('.media__counter')
+    const imageEl = resultBody.querySelector('img')
+    const sourceEl = resultBody.querySelector('source')
+    const videoEl = resultBody.querySelector('video')
+
+    const setImg = (media, index) => {
+        if (media?.format_type === 'image') {
+            imageEl.src = media.path
+
+            imageEl.classList.remove('hidden')
+            videoEl.classList.add('hidden')
+        } else if (media?.format_type === 'video') {
+            sourceEl.src = media.path
+
+            videoEl.classList.remove('hidden')
+            imageEl.classList.add('hidden')
+        }
+
+        mediaName.innerText = media?.name
+        counter.innerText = `${index + 1} / ${assets.length}`
+    }
+    setImg(mediaViewer.activeFile, mediaViewer.currentIndex)
+
+    const moveLeft = () => {
+        const [media, index] = mediaViewer.prevActive()
+        setImg(media, index)
+    }
+    const doRight = () => {
+        const [media, index] = mediaViewer.nextActive()
+        setImg(media, index)
+    }
+    const openImg = () => {
+        window.open(mediaViewer.activeFile.path, '_blank')
+    }
+    if (assets.length === 1) {
+        container.classList.add('media-container--fullscreen')
+    } else {
+        leftArrow.addEventListener('click', moveLeft)
+        rightArrow.addEventListener('click', doRight)
+    }
+    imageEl.addEventListener('click', openImg)
+}
+
+module.exports = {
+    setup,
+}
+
+},{}],7:[function(require,module,exports){
+const { manager } = require('./datamanager.js')
+const storageModule = require('./storage.js')
+
+const genericSort = (list, key, ascending, customOrder) => {
+    let sorted
+    if (customOrder) {
+        sorted = list.sort((a, b) => {
+            const aValue = a.result.toLowerCase()
+            const bValue = b.result.toLowerCase()
+
+            const aIndex = customOrder.findIndex((item) => item.toLowerCase() === aValue)
+            const bIndex = customOrder.findIndex((item) => item.toLowerCase() === bValue)
+
+            // Compare the indices to determine the sort order
+            return aIndex - bIndex
+        })
+    } else {
+        sorted = list.sort((a, b) => a[key] === b[key] ? 0 : a[key] > b[key] ? 1 : -1)
+    }
+
+    if (ascending) {
+        sorted.reverse()
+    }
+    return sorted
+}
+
+const durationSort = (list, ascending) => {
+    const parseDuration = (duration) => {
+        if (duration.includes(':')) {
+            // If it's in the format "HH:mm:ss"
+            const [hours, minutes, seconds] = duration.split(':').map(Number)
+            return (hours * 3600 + minutes * 60 + seconds) * 1000
+        } else {
+            // If it's in the format "nnn ms"
+            return parseInt(duration)
+        }
+    }
+    const sorted = list.sort((a, b) => parseDuration(a['duration']) - parseDuration(b['duration']))
+    if (ascending) {
+        sorted.reverse()
+    }
+    return sorted
+}
+
+const doInitSort = () => {
+    const type = storageModule.getSort(manager.initialSort)
+    const ascending = storageModule.getSortDirection()
+    const list = manager.testSubset
+    const initialOrder = ['Error', 'Failed', 'Rerun', 'XFailed', 'XPassed', 'Skipped', 'Passed']
+
+    storageModule.setSort(type)
+    storageModule.setSortDirection(ascending)
+
+    if (type?.toLowerCase() === 'original') {
+        manager.setRender(list)
+    } else {
+        let sortedList
+        switch (type) {
+        case 'duration':
+            sortedList = durationSort(list, ascending)
+            break
+        case 'result':
+            sortedList = genericSort(list, type, ascending, initialOrder)
+            break
+        default:
+            sortedList = genericSort(list, type, ascending)
+            break
+        }
+        manager.setRender(sortedList)
+    }
+}
+
+const doSort = (type, skipDirection) => {
+    const newSortType = storageModule.getSort(manager.initialSort) !== type
+    const currentAsc = storageModule.getSortDirection()
+    let ascending
+    if (skipDirection) {
+        ascending = currentAsc
+    } else {
+        ascending = newSortType ? false : !currentAsc
+    }
+    storageModule.setSort(type)
+    storageModule.setSortDirection(ascending)
+
+    const list = manager.testSubset
+    const sortedList = type === 'duration' ? durationSort(list, ascending) : genericSort(list, type, ascending)
+    manager.setRender(sortedList)
+}
+
+module.exports = {
+    doInitSort,
+    doSort,
+}
+
+},{"./datamanager.js":1,"./storage.js":8}],8:[function(require,module,exports){
+const possibleFilters = [
+    'passed',
+    'skipped',
+    'failed',
+    'error',
+    'xfailed',
+    'xpassed',
+    'rerun',
+]
+
+const getVisible = () => {
+    const url = new URL(window.location.href)
+    const settings = new URLSearchParams(url.search).get('visible')
+    const lower = (item) => {
+        const lowerItem = item.toLowerCase()
+        if (possibleFilters.includes(lowerItem)) {
+            return lowerItem
+        }
+        return null
+    }
+    return settings === null ?
+        possibleFilters :
+        [...new Set(settings?.split(',').map(lower).filter((item) => item))]
+}
+
+const hideCategory = (categoryToHide) => {
+    const url = new URL(window.location.href)
+    const visibleParams = new URLSearchParams(url.search).get('visible')
+    const currentVisible = visibleParams ? visibleParams.split(',') : [...possibleFilters]
+    const settings = [...new Set(currentVisible)].filter((f) => f !== categoryToHide).join(',')
+
+    url.searchParams.set('visible', settings)
+    window.history.pushState({}, null, unescape(url.href))
+}
+
+const showCategory = (categoryToShow) => {
+    if (typeof window === 'undefined') {
+        return
+    }
+    const url = new URL(window.location.href)
+    const currentVisible = new URLSearchParams(url.search).get('visible')?.split(',').filter(Boolean) ||
+        [...possibleFilters]
+    const settings = [...new Set([categoryToShow, ...currentVisible])]
+    const noFilter = possibleFilters.length === settings.length || !settings.length
+
+    noFilter ? url.searchParams.delete('visible') : url.searchParams.set('visible', settings.join(','))
+    window.history.pushState({}, null, unescape(url.href))
+}
+
+const getSort = (initialSort) => {
+    const url = new URL(window.location.href)
+    let sort = new URLSearchParams(url.search).get('sort')
+    if (!sort) {
+        sort = initialSort || 'result'
+    }
+    return sort
+}
+
+const setSort = (type) => {
+    const url = new URL(window.location.href)
+    url.searchParams.set('sort', type)
+    window.history.pushState({}, null, unescape(url.href))
+}
+
+const getCollapsedCategory = (renderCollapsed) => {
+    let categories
+    if (typeof window !== 'undefined') {
+        const url = new URL(window.location.href)
+        const collapsedItems = new URLSearchParams(url.search).get('collapsed')
+        switch (true) {
+        case !renderCollapsed && collapsedItems === null:
+            categories = ['passed']
+            break
+        case collapsedItems?.length === 0 || /^["']{2}$/.test(collapsedItems):
+            categories = []
+            break
+        case /^all$/.test(collapsedItems) || collapsedItems === null && /^all$/.test(renderCollapsed):
+            categories = [...possibleFilters]
+            break
+        default:
+            categories = collapsedItems?.split(',').map((item) => item.toLowerCase()) || renderCollapsed
+            break
+        }
+    } else {
+        categories = []
+    }
+    return categories
+}
+
+const getSortDirection = () => JSON.parse(sessionStorage.getItem('sortAsc')) || false
+const setSortDirection = (ascending) => sessionStorage.setItem('sortAsc', ascending)
+
+const getCollapsedIds = () => JSON.parse(sessionStorage.getItem('collapsedIds')) || []
+const setCollapsedIds = (list) => sessionStorage.setItem('collapsedIds', JSON.stringify(list))
+
+module.exports = {
+    getVisible,
+    hideCategory,
+    showCategory,
+    getCollapsedIds,
+    setCollapsedIds,
+    getSort,
+    setSort,
+    getSortDirection,
+    setSortDirection,
+    getCollapsedCategory,
+    possibleFilters,
+}
+
+},{}]},{},[4]);
+    </script>
+  </footer>
+  </body>
+</html>
